@@ -75,11 +75,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Bthrifs Marketplace — Nigeria's Thrift & Style Hub" },
       { name: "description", content: "Buy and sell affordable thrift fashion, shoes, bags and accessories from trusted Nigerian sellers. Secure escrow, fast delivery." },
       { name: "author", content: "Bthrifs" },
-      { property: "og:title", content: "Bthrifs Marketplace — Thrift & Style" },
-      { property: "og:description", content: "Nigeria's social-commerce thrift marketplace. Discover, buy and sell thrift in Naira." },
+      { property: "og:title", content: "Bthrifs Marketplace — Nigeria's Thrift & Style Hub" },
+      { property: "og:description", content: "Buy and sell affordable thrift fashion, shoes, bags and accessories from trusted Nigerian sellers. Secure escrow, fast delivery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@bthrifs" },
+      { name: "twitter:title", content: "Bthrifs Marketplace — Nigeria's Thrift & Style Hub" },
+      { name: "twitter:description", content: "Buy and sell affordable thrift fashion, shoes, bags and accessories from trusted Nigerian sellers. Secure escrow, fast delivery." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/eQfwqIztpxcMC6GEQHDh3tbfeQ02/social-images/social-1779520177006-1000438525.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/eQfwqIztpxcMC6GEQHDh3tbfeQ02/social-images/social-1779520177006-1000438525.webp" },
     ],
     links: [
       {

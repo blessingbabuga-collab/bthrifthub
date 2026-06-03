@@ -1,18 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { Home, Search, Heart, ShoppingBag, User } from "lucide-react";
+import { Home, Search, Heart, ShoppingBag, User, Plus } from "lucide-react";
 
 const items = [
-  { to: "/", label: "Home", Icon: Home },
-  { to: "/browse", label: "Browse", Icon: Search },
-  { to: "/wishlist", label: "Saved", Icon: Heart },
-  { to: "/cart", label: "Cart", Icon: ShoppingBag },
-  { to: "/login", label: "Me", Icon: User },
-] as const;
+  { to: "/" as const, label: "Home", Icon: Home },
+  { to: "/browse" as const, label: "Browse", Icon: Search },
+  { to: "/sell" as const, label: "Sell", Icon: Plus },
+  { to: "/wishlist" as const, label: "Saved", Icon: Heart },
+  { to: "/cart" as const, label: "Cart", Icon: ShoppingBag },
+  { to: "/auth" as const, label: "Me", Icon: User },
+];
 
 export function MobileNav() {
   return (
     <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border">
-      <ul className="grid grid-cols-5 px-2 py-1.5 safe-area">
+      <ul className="grid grid-cols-6 px-1 py-1.5 safe-area">
         {items.map(({ to, label, Icon }) => (
           <li key={to}>
             <Link

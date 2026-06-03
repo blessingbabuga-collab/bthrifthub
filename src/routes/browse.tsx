@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { ProductCard } from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import { fetchProducts } from "@/lib/products";
 import { SlidersHorizontal } from "lucide-react";
 
 export const Route = createFileRoute("/browse")({
@@ -12,6 +15,11 @@ export const Route = createFileRoute("/browse")({
 });
 
 function Browse() {
+  const [cat, setCat] = useState<string>("All");
+  const { data, isLoading } = useQuery({
+    queryKey: ["products", cat],
+    queryFn: () => fetchProducts({ category: cat === "All" ? undefined : cat }),
+  });
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
@@ -23,16 +31,32 @@ function Browse() {
           <button className="shrink-0 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-amber text-amber text-sm">
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </button>
-          {["All", ...categories.map((c) => c.name)].map((c, i) => (
-            <button key={c} className={`shrink-0 px-4 h-10 rounded-full text-sm border ${i === 0 ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-amber"}`}>
+          {["All", ...categories.map((c) => c.name)].map((c) => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              className={`shrink-0 px-4 h-10 rounded-full text-sm border transition-colors ${cat === c ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-amber"}`}
+            >
               {c}
             </button>
           ))}
         </div>
 
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {[...products, ...products].map((p, i) => <ProductCard key={p.id + i} p={p} />)}
-        </div>
+        {isLoading && (
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 8 }).map((_, i) => <div key={i} className="aspect-[4/5] rounded-2xl bg-secondary animate-pulse" />)}
+          </div>
+        )}
+        {!isLoading && data && data.length === 0 && (
+          <div className="mt-12 text-center bg-card border border-border rounded-3xl p-10">
+            <p className="text-muted-foreground">No listings yet in this category.</p>
+          </div>
+        )}
+        {data && data.length > 0 && (
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {data.map((p) => <ProductCard key={p.id} p={p} />)}
+          </div>
+        )}
       </div>
       <SiteFooter />
       <MobileNav />

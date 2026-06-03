@@ -1,8 +1,13 @@
-import { Link } from "@tanstack/react-router";
-import { Search, ShoppingBag, User } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Search, ShoppingBag, User, LogOut } from "lucide-react";
 import { Logo } from "./Logo";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export function SiteHeader() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
   return (
     <header className="sticky top-0 z-40 backdrop-blur bg-background/80 border-b border-border">
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
@@ -17,12 +22,18 @@ export function SiteHeader() {
         <nav className="flex items-center gap-1">
           <Link to="/browse" className="hidden sm:inline px-3 py-2 text-sm hover:text-amber transition-colors">Browse</Link>
           <Link to="/sell" className="hidden sm:inline px-3 py-2 text-sm hover:text-amber transition-colors">Sell</Link>
-          <button aria-label="Cart" className="p-2 rounded-full hover:bg-secondary transition-colors">
+          <Link to="/cart" aria-label="Cart" className="p-2 rounded-full hover:bg-secondary transition-colors">
             <ShoppingBag className="h-5 w-5" />
-          </button>
-          <Link to="/login" aria-label="Account" className="p-2 rounded-full hover:bg-secondary transition-colors">
-            <User className="h-5 w-5" />
           </Link>
+          {user ? (
+            <button onClick={signOut} aria-label="Sign out" className="p-2 rounded-full hover:bg-secondary transition-colors">
+              <LogOut className="h-5 w-5" />
+            </button>
+          ) : (
+            <Link to="/auth" aria-label="Account" className="p-2 rounded-full hover:bg-secondary transition-colors">
+              <User className="h-5 w-5" />
+            </Link>
+          )}
         </nav>
       </div>
     </header>

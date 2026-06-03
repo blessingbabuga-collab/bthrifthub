@@ -14,7 +14,157 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          brand: string | null
+          category: string
+          color: string | null
+          condition: string
+          created_at: string
+          description: string | null
+          extra_images: string[]
+          id: string
+          image_url: string
+          location: string | null
+          original_price: number | null
+          price: number
+          seller_id: string
+          size: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          brand?: string | null
+          category: string
+          color?: string | null
+          condition?: string
+          created_at?: string
+          description?: string | null
+          extra_images?: string[]
+          id?: string
+          image_url: string
+          location?: string | null
+          original_price?: number | null
+          price: number
+          seller_id: string
+          size?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          color?: string | null
+          condition?: string
+          created_at?: string
+          description?: string | null
+          extra_images?: string[]
+          id?: string
+          image_url?: string
+          location?: string | null
+          original_price?: number | null
+          price?: number
+          seller_id?: string
+          size?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          location: string | null
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          location?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          location?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

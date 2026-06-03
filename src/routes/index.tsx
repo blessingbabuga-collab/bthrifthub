@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, Sparkles, Truck, Wallet, ArrowRight, Play } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { ProductCard } from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import { fetchProducts } from "@/lib/products";
 import flatlay from "@/assets/thrift-flatlay.jpg";
 import model from "@/assets/model-1.jpg";
 
 export const Route = createFileRoute("/")({ component: Index });
 
 function Index() {
+  const { data: products } = useQuery({ queryKey: ["products", "trending"], queryFn: () => fetchProducts({ limit: 8 }) });
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
@@ -101,9 +104,16 @@ function Index() {
           </div>
           <Link to="/browse" className="text-sm text-amber">Browse all →</Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {products.map((p) => <ProductCard key={p.id} p={p} />)}
-        </div>
+        {products && products.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {products.map((p) => <ProductCard key={p.id} p={p} />)}
+          </div>
+        ) : (
+          <div className="bg-card border border-border rounded-3xl p-10 text-center">
+            <p className="text-muted-foreground">No drops yet — be the first to list something fresh.</p>
+            <Link to="/sell" className="mt-4 inline-flex h-11 px-6 items-center rounded-full bg-amber text-accent-foreground font-bold">List an item</Link>
+          </div>
+        )}
       </section>
 
       {/* WHY */}

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
+import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/products";
 import { Trash2 } from "lucide-react";
@@ -38,6 +39,7 @@ function CartPage() {
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-4 py-10">
+        <BackButton fallback="/browse" />
         <h1 className="font-display text-4xl">Your cart</h1>
         {isLoading && <p className="mt-6 text-muted-foreground">Loading…</p>}
         {!isLoading && (!data || data.length === 0) && (

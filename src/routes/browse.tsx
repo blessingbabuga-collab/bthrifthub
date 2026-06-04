@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
+import { BackButton } from "@/components/BackButton";
 import { ProductCard } from "@/components/ProductCard";
 import { categories } from "@/data/products";
 import { fetchProducts } from "@/lib/products";
@@ -24,6 +25,7 @@ function Browse() {
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
       <div className="mx-auto max-w-6xl px-4 py-8">
+        <BackButton fallback="/" />
         <h1 className="font-display text-4xl md:text-5xl">Browse Thrift</h1>
         <p className="text-sm text-muted-foreground mt-1">Curated finds from sellers across Nigeria.</p>
 

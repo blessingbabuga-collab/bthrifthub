@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
+import { BackButton } from "@/components/BackButton";
 import { fetchProduct, formatNaira } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, MapPin, MessageCircle, ShieldCheck, Share2, ShoppingBag } from "lucide-react";
@@ -50,6 +51,7 @@ function ProductPage() {
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
       <div className="mx-auto max-w-5xl px-4 py-8">
+        <BackButton fallback="/browse" />
         {isLoading && <div className="h-96 animate-pulse bg-secondary rounded-3xl" />}
         {error && <p className="text-destructive">Product not found.</p>}
         {p && (

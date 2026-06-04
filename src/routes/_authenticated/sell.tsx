@@ -3,6 +3,8 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
+import { BackButton } from "@/components/BackButton";
+import { ImageUploader, type UploadedImage } from "@/components/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/products";
 import { toast } from "sonner";
@@ -17,15 +19,17 @@ function SellPage() {
   const { user } = Route.useRouteContext();
   const [form, setForm] = useState({
     title: "", description: "", price: "", original_price: "",
-    image_url: "", category: "Women", condition: "Good",
+    category: "Women", condition: "Good",
     brand: "", size: "", color: "", location: "",
   });
+  const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(false);
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v }));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (images.length === 0) { toast.error("Add at least one photo"); return; }
     setLoading(true);
     const { data, error } = await supabase.from("products").insert({
       seller_id: user.id,
@@ -33,7 +37,8 @@ function SellPage() {
       description: form.description || null,
       price: Number(form.price),
       original_price: form.original_price ? Number(form.original_price) : null,
-      image_url: form.image_url,
+      image_url: images[0].url,
+      extra_images: images.slice(1).map((i) => i.url),
       category: form.category,
       condition: form.condition,
       brand: form.brand || null,
@@ -51,6 +56,7 @@ function SellPage() {
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
       <div className="mx-auto max-w-2xl px-4 py-10">
+        <BackButton fallback="/" />
         <h1 className="font-display text-4xl">List a thrift item</h1>
         <p className="text-sm text-muted-foreground mt-1">Reach buyers across Nigeria in under a minute.</p>
 
@@ -58,12 +64,9 @@ function SellPage() {
           <Field label="Product title" required>
             <input required value={form.title} onChange={(e) => set("title", e.target.value)} className={inputCls} placeholder="Vintage denim jacket" />
           </Field>
-          <Field label="Photo URL" required hint="Paste a link to your product photo (we'll add direct uploads soon).">
-            <input required type="url" value={form.image_url} onChange={(e) => set("image_url", e.target.value)} className={inputCls} placeholder="https://…" />
+          <Field label="Photos" required hint="Upload from your gallery, files, or camera. The first photo is your cover.">
+            <ImageUploader userId={user.id} value={images} onChange={setImages} />
           </Field>
-          {form.image_url && (
-            <img src={form.image_url} alt="" className="w-40 aspect-square object-cover rounded-2xl border border-border" />
-          )}
           <div className="grid grid-cols-2 gap-3">
             <Field label="Price (₦)" required>
               <input required type="number" min={0} value={form.price} onChange={(e) => set("price", e.target.value)} className={inputCls} />

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
+import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/products";
 import { Heart } from "lucide-react";
@@ -36,6 +37,7 @@ function WishlistPage() {
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
       <div className="mx-auto max-w-5xl px-4 py-10">
+        <BackButton fallback="/browse" />
         <h1 className="font-display text-4xl">Your wishlist</h1>
         {isLoading && <p className="mt-6 text-muted-foreground">Loading…</p>}
         {!isLoading && (!data || data.length === 0) && (

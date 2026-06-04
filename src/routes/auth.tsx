@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
@@ -64,7 +65,10 @@ function AuthPage() {
   return (
     <div className="min-h-screen bg-hero flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm bg-card border border-border rounded-3xl p-8 shadow-glow">
-        <Link to="/" className="block"><Logo className="h-10 mx-auto" /></Link>
+        <div className="flex items-center justify-between mb-2">
+          <BackButton fallback="/" />
+          <Link to="/"><Logo className="h-8" /></Link>
+        </div>
         <h1 className="font-display text-3xl text-center mt-6">
           {mode === "signin" ? "Welcome back" : "Join Bthrifts"}
         </h1>
@@ -95,6 +99,11 @@ function AuthPage() {
           )}
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" />
           <input required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" />
+          {mode === "signin" && (
+            <div className="text-right -mt-1">
+              <Link to="/forgot-password" className="text-xs text-amber">Forgot password?</Link>
+            </div>
+          )}
           <button disabled={loading} type="submit" className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-glow disabled:opacity-60">
             {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
           </button>

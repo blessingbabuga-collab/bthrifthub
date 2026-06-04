@@ -9,6 +9,7 @@ import { categories } from "@/data/products";
 import { fetchProducts } from "@/lib/products";
 import flatlay from "@/assets/thrift-flatlay.jpg";
 import model from "@/assets/model-1.jpg";
+import walkthrough from "../../public/bthrifts-walkthrough.mp4.asset.json";
 
 export const Route = createFileRoute("/")({ component: Index });
 
@@ -68,13 +69,14 @@ function Index() {
       <section className="mx-auto max-w-6xl px-4">
         <div className="relative rounded-3xl overflow-hidden border border-border bg-card">
           <video
-            src="/bthrifs-demo.mp4"
+            src={walkthrough.url}
             autoPlay muted loop playsInline
+            controls
             className="w-full h-auto max-h-[520px] object-cover"
             poster={model}
           />
           <div className="absolute top-4 left-4 inline-flex items-center gap-2 text-xs bg-background/70 backdrop-blur px-3 py-1.5 rounded-full">
-            <Play className="h-3 w-3 text-amber fill-amber" /> See Bthrifs in motion
+            <Play className="h-3 w-3 text-amber fill-amber" /> BTHRIFTS walkthrough — how it works
           </div>
         </div>
       </section>

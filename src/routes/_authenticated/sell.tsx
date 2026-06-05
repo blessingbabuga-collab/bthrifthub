@@ -28,19 +28,14 @@ export const Route = createFileRoute("/_authenticated/sell")({
 function SellPage() {
   const navigate = useNavigate();
   const { user } = Route.useRouteContext();
-  const [form, setForm] = useState({
-    title: "", description: "", price: "", original_price: "",
-    category: "Women", condition: "Good",
-    brand: "", size: "", color: "", location: "",
-  });
-  const [images, setImages] = useState<UploadedImage[]>([]);
-  const [loading, setLoading] = useState(false);
-
   const initialForm = {
     title: "", description: "", price: "", original_price: "",
     category: "Women", condition: "Good",
     brand: "", size: "", color: "", location: "",
   };
+  const [form, setForm] = useState(initialForm);
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const resetDraft = () => {
     setForm(initialForm);

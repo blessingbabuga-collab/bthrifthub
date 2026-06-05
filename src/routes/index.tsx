@@ -1,13 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ShieldCheck, Sparkles, Truck, Wallet, ArrowRight, Play } from "lucide-react";
+import { ShieldCheck, ShoppingBag, Store, Truck, Wallet, ArrowRight, Play } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { ProductCard } from "@/components/ProductCard";
-import { categories } from "@/data/products";
 import { fetchProducts } from "@/lib/products";
-import flatlay from "@/assets/thrift-flatlay.jpg";
 import model from "@/assets/model-1.jpg";
 import walkthrough from "../../public/bthrifts-walkthrough.mp4.asset.json";
 
@@ -21,79 +19,47 @@ function Index() {
 
       {/* HERO */}
       <section className="relative bg-hero overflow-hidden">
-        <div className="mx-auto max-w-6xl px-4 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-amber">
-              <span className="h-px w-8 bg-amber" /> Thrift & Style
-            </span>
-            <h1 className="font-display text-5xl md:text-7xl leading-[0.95] mt-4">
-              Nigeria's <span className="text-primary">thrift</span> marketplace,<br/>
-              built for the <span className="text-amber">streets.</span>
-            </h1>
-            <p className="mt-5 text-muted-foreground max-w-md">
-              Discover affordable thrift fashion, shoes and bags from trusted sellers across Naija. Pay in Naira, secured by escrow.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/browse" className="inline-flex items-center gap-2 px-6 h-12 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:opacity-95">
-                Start shopping <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link to="/sell" className="inline-flex items-center gap-2 px-6 h-12 rounded-full border border-amber text-amber font-semibold hover:bg-amber hover:text-accent-foreground transition-colors">
-                Sell on Bthrifs
-              </Link>
-            </div>
-            <div className="mt-8 flex items-center gap-6 text-xs text-muted-foreground">
-              <div><span className="block font-display text-2xl text-foreground">12k+</span>Active sellers</div>
-              <div><span className="block font-display text-2xl text-foreground">90k+</span>Items listed</div>
-              <div><span className="block font-display text-2xl text-foreground">4.9★</span>Buyer rating</div>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-glow ring-brand">
-              <img src={model} alt="Bthrifs style" width={1024} height={1280} className="w-full aspect-[4/5] object-cover" />
-              <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background to-transparent">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="px-2 py-1 rounded-full bg-amber text-accent-foreground font-bold">DROP</span>
-                  <span>New Lagos thrift haul · 240 items</span>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-6 -left-6 hidden md:block bg-card border border-border rounded-2xl p-3 w-44 shadow-amber">
-              <img src={flatlay} alt="" loading="lazy" width={1280} height={1600} className="rounded-xl aspect-square object-cover" />
-              <p className="mt-2 text-[11px] text-muted-foreground">Curated for you</p>
-            </div>
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-14 md:pt-20 md:pb-20 text-center">
+          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-amber">
+            <span className="h-px w-8 bg-amber" /> BTHRIFTS Marketplace <span className="h-px w-8 bg-amber" />
+          </span>
+          <h1 className="font-display text-4xl md:text-6xl leading-[1.02] mt-5">
+            Nigeria's Smart <span className="text-primary">Thrift</span> Marketplace<br className="hidden md:block" />
+            for <span className="text-amber">Buying &amp; Selling</span>
+          </h1>
+          <p className="mt-5 text-muted-foreground max-w-xl mx-auto">
+            Discover affordable thrift fashion from trusted sellers, or turn your closet into income — all in one secure, Naija-built marketplace.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/browse" className="inline-flex items-center gap-2 px-7 h-13 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:opacity-95">
+              <ShoppingBag className="h-4 w-4" /> Buy
+            </Link>
+            <Link to="/sell" className="inline-flex items-center gap-2 px-7 h-13 py-3 rounded-full bg-amber text-accent-foreground font-bold shadow-amber hover:opacity-95">
+              <Store className="h-4 w-4" /> Sell
+            </Link>
           </div>
         </div>
       </section>
 
       {/* DEMO VIDEO */}
-      <section className="mx-auto max-w-6xl px-4">
-        <div className="relative rounded-3xl overflow-hidden border border-border bg-card">
+      <section className="mx-auto max-w-4xl px-4 mt-4 md:mt-8">
+        <div className="text-center mb-6">
+          <h2 className="font-display text-3xl md:text-4xl">How BTHRIFTS Works</h2>
+          <p className="mt-2 text-sm md:text-base text-muted-foreground">Watch how to buy and sell on BTHRIFTS in minutes</p>
+        </div>
+        <div className="relative rounded-3xl overflow-hidden border border-border bg-card shadow-glow">
           <video
             src={walkthrough.url}
             autoPlay muted loop playsInline
             controls
-            className="w-full h-auto max-h-[520px] object-cover"
+            className="w-full h-auto max-h-[560px] object-cover"
             poster={model}
           />
-          <div className="absolute top-4 left-4 inline-flex items-center gap-2 text-xs bg-background/70 backdrop-blur px-3 py-1.5 rounded-full">
-            <Play className="h-3 w-3 text-amber fill-amber" /> BTHRIFTS walkthrough — how it works
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-90">
+            <div className="h-16 w-16 rounded-full bg-amber/95 text-accent-foreground flex items-center justify-center shadow-amber ring-4 ring-background/40 animate-pulse">
+              <Play className="h-7 w-7 fill-current" />
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* CATEGORIES */}
-      <section className="mx-auto max-w-6xl px-4 mt-14">
-        <div className="flex items-end justify-between mb-5">
-          <h2 className="font-display text-3xl md:text-4xl">Shop by category</h2>
-          <Link to="/browse" className="text-sm text-amber">See all →</Link>
-        </div>
-        <div className="flex sm:grid sm:grid-cols-6 gap-3 overflow-x-auto no-scrollbar scroll-x -mx-4 px-4">
-          {categories.map((c) => (
-            <button key={c.name} className="shrink-0 w-28 sm:w-auto bg-card border border-border rounded-2xl py-5 flex flex-col items-center gap-2 hover:border-amber transition-colors">
-              <span className="text-3xl">{c.emoji}</span>
-              <span className="text-sm font-medium">{c.name}</span>
-            </button>
-          ))}
         </div>
       </section>
 
@@ -101,10 +67,10 @@ function Index() {
       <section className="mx-auto max-w-6xl px-4 mt-14">
         <div className="flex items-end justify-between mb-5">
           <div>
-            <span className="text-xs uppercase tracking-widest text-amber">Trending now</span>
-            <h2 className="font-display text-3xl md:text-4xl">Fresh thrift drops</h2>
+            <span className="text-xs uppercase tracking-widest text-amber">For buyers</span>
+            <h2 className="font-display text-3xl md:text-4xl">Latest listings</h2>
           </div>
-          <Link to="/browse" className="text-sm text-amber">Browse all →</Link>
+          <Link to="/browse" className="text-sm text-amber">See all →</Link>
         </div>
         {products && products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
@@ -121,13 +87,13 @@ function Index() {
       {/* WHY */}
       <section className="mx-auto max-w-6xl px-4 mt-20">
         <div className="divider-amber mb-10" />
-        <h2 className="font-display text-3xl md:text-4xl text-center">Why thousands buy on Bthrifs</h2>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="font-display text-3xl md:text-4xl text-center">A marketplace you can trust</h2>
+        <p className="mt-2 text-center text-sm text-muted-foreground">Secure transactions, fast selling, nationwide delivery.</p>
+        <div className="mt-8 grid sm:grid-cols-3 gap-4">
           {[
-            { Icon: ShieldCheck, t: "Escrow Protected", d: "Sellers only get paid after you confirm delivery." },
-            { Icon: Wallet, t: "Pay in Naira", d: "Paystack, Flutterwave, transfer or wallet — your choice." },
-            { Icon: Truck, t: "Nationwide Delivery", d: "Trusted riders deliver across all 36 states." },
-            { Icon: Sparkles, t: "AI Discovery", d: "Smart recommendations tuned to your style." },
+            { Icon: ShieldCheck, t: "Secure Marketplace", d: "Escrow holds payment until you confirm delivery — buy and sell with peace of mind." },
+            { Icon: Wallet, t: "Easy Listing, Fast Selling", d: "Publish a product in under a minute and reach buyers across Nigeria instantly." },
+            { Icon: Truck, t: "Nationwide Delivery", d: "Trusted riders deliver to all 36 states with transparent pricing." },
           ].map(({ Icon, t, d }) => (
             <div key={t} className="bg-card border border-border rounded-2xl p-5">
               <Icon className="h-6 w-6 text-amber" />
@@ -138,20 +104,21 @@ function Index() {
         </div>
       </section>
 
-      {/* SELLER CTA */}
-      <section className="mx-auto max-w-6xl px-4 mt-20">
-        <div className="relative overflow-hidden rounded-3xl bg-primary text-primary-foreground p-8 md:p-14 grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <span className="text-xs uppercase tracking-widest text-amber">For sellers</span>
-            <h2 className="font-display text-4xl md:text-5xl mt-2">Turn your thrift into income.</h2>
-            <p className="mt-3 text-primary-foreground/80 max-w-md">
-              List in 60 seconds. Reach buyers nationwide. Get paid fast — straight to your bank.
-            </p>
-            <Link to="/sell" className="mt-6 inline-flex items-center gap-2 px-6 h-12 rounded-full bg-amber text-accent-foreground font-bold shadow-amber">
-              Become a seller <ArrowRight className="h-4 w-4" />
+      {/* FINAL CTA */}
+      <section className="mx-auto max-w-5xl px-4 mt-20">
+        <div className="relative overflow-hidden rounded-3xl bg-primary text-primary-foreground p-8 md:p-14 text-center">
+          <h2 className="font-display text-3xl md:text-5xl">Ready to join BTHRIFTS?</h2>
+          <p className="mt-3 text-primary-foreground/80 max-w-md mx-auto">
+            Whether you're hunting for a steal or turning your closet into cash — start in seconds.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Link to="/browse" className="inline-flex items-center gap-2 px-7 h-12 rounded-full bg-background text-foreground font-semibold hover:opacity-95">
+              <ShoppingBag className="h-4 w-4" /> Start Buying
+            </Link>
+            <Link to="/sell" className="inline-flex items-center gap-2 px-7 h-12 rounded-full bg-amber text-accent-foreground font-bold shadow-amber hover:opacity-95">
+              <Store className="h-4 w-4" /> Start Selling <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <img src={flatlay} alt="" loading="lazy" width={1280} height={1600} className="rounded-2xl w-full aspect-[4/3] object-cover" />
         </div>
       </section>
 

@@ -8,6 +8,17 @@ import { ImageUploader, type UploadedImage } from "@/components/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/products";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/sell")({
   component: SellPage,
@@ -24,6 +35,18 @@ function SellPage() {
   });
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const initialForm = {
+    title: "", description: "", price: "", original_price: "",
+    category: "Women", condition: "Good",
+    brand: "", size: "", color: "", location: "",
+  };
+
+  const resetDraft = () => {
+    setForm(initialForm);
+    setImages([]);
+    toast.success("Draft deleted");
+  };
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v }));
 
@@ -96,9 +119,32 @@ function SellPage() {
           <Field label="Description">
             <textarea rows={4} value={form.description} onChange={(e) => set("description", e.target.value)} className={inputCls + " resize-none"} placeholder="Tell buyers about fit, fabric, condition…" />
           </Field>
-          <button disabled={loading} type="submit" className="w-full h-12 rounded-xl bg-amber text-accent-foreground font-bold shadow-amber disabled:opacity-60">
-            {loading ? "Publishing…" : "Publish listing"}
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 pt-2">
+            <button disabled={loading} type="submit" className="h-12 rounded-xl bg-amber text-accent-foreground font-bold shadow-amber disabled:opacity-60">
+              {loading ? "Publishing…" : "Submit / Upload"}
+            </button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button type="button" disabled={loading} className="h-12 px-6 rounded-xl border border-destructive/50 text-destructive font-bold hover:bg-destructive hover:text-destructive-foreground transition-colors disabled:opacity-60">
+                  Delete
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this draft?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will clear all the details and photos you've added. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={resetDraft} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Yes, delete draft
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </form>
       </div>
       <SiteFooter />

@@ -10,6 +10,7 @@ import {
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
+import "@/lib/client-error-overlay";
 
 function NotFoundComponent() {
   return (

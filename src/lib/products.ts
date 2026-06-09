@@ -35,3 +35,13 @@ export async function fetchProduct(id: string) {
   if (error) throw error;
   return data as DbProduct;
 }
+
+export async function fetchSellerProfile(sellerId: string) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", sellerId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}

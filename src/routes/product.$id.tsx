@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { BackButton } from "@/components/BackButton";
-import { fetchProduct, formatNaira } from "@/lib/products";
+import { fetchProduct, fetchSellerProfile, formatNaira } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, MapPin, MessageCircle, ShieldCheck, Share2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +19,11 @@ function ProductPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: p, isLoading, error } = useQuery({ queryKey: ["product", id], queryFn: () => fetchProduct(id) });
+  const { data: seller } = useQuery({
+    queryKey: ["seller", p?.seller_id],
+    queryFn: () => fetchSellerProfile(p!.seller_id),
+    enabled: !!p?.seller_id,
+  });
 
   const requireAuth = () => {
     if (!user) { navigate({ to: "/auth" }); return false; }
@@ -45,6 +50,18 @@ function ProductPage() {
     const url = window.location.href;
     if (navigator.share) { try { await navigator.share({ url, title: p?.title }); } catch {} }
     else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
+  };
+
+  const chatSeller = () => {
+    if (!p) return;
+    const phone = (seller as { phone?: string | null } | undefined)?.phone?.replace(/\D/g, "");
+    if (!phone) {
+      toast.info("This seller hasn't added WhatsApp yet. Try Save & checkout via cart.");
+      return;
+    }
+    const intl = phone.startsWith("234") ? phone : phone.startsWith("0") ? "234" + phone.slice(1) : "234" + phone;
+    const msg = encodeURIComponent(`Hi! I'm interested in your "${p.title}" (₦${Number(p.price).toLocaleString("en-NG")}) on BTHRIFTS — ${window.location.href}`);
+    window.open(`https://wa.me/${intl}?text=${msg}`, "_blank", "noopener");
   };
 
   return (
@@ -111,8 +128,8 @@ function ProductPage() {
                 <ShieldCheck className="h-4 w-4 text-amber" /> Protected by Bthrifts escrow — pay only after delivery.
               </div>
 
-              <button className="mt-6 w-full h-11 rounded-full border border-amber text-amber font-medium inline-flex items-center justify-center gap-2">
-                <MessageCircle className="h-4 w-4" /> Chat seller
+              <button onClick={chatSeller} className="mt-6 w-full h-12 rounded-full border-2 border-amber text-amber font-semibold inline-flex items-center justify-center gap-2 hover:bg-amber hover:text-accent-foreground transition-colors">
+                <MessageCircle className="h-4 w-4" /> Chat seller on WhatsApp
               </button>
             </div>
           </div>

@@ -241,6 +241,74 @@ async function run() {
     });
     assert(await visible(c, ids.many_inactive_seller), "becomes visible once a single active listing is added");
   }
+
+  // Re-baseline state for the leak-shaped checks below: make sure each
+  // persona is in the visibility bucket their NAME implies.
+  await admin.from("products").delete().eq("seller_id", ids.many_inactive_seller).eq("status", "active");
+  await admin.from("products").update({ status: "active" }).eq("seller_id", ids.mixed_seller).limit(1);
+
+  console.log("\n[7] no leak through bulk list / search — hidden profiles never appear in any shape of SELECT");
+  {
+    const c = anonClient();
+    const tagged = [
+      ids.active_seller,
+      ids.inactive_seller,
+      ids.mixed_seller,
+      ids.many_inactive_seller,
+      ids.buyer,
+      ids.viewer,
+    ];
+    const expectedVisible = new Set([ids.active_seller, ids.mixed_seller]);
+
+    // 7a) Bulk list by id-set (mirrors `profiles.in(...)` join patterns)
+    const { data: bulk, error: bulkErr } = await c.from("profiles").select("id").in("id", tagged);
+    assert(!bulkErr, "bulk select by id list succeeds without error");
+    const bulkIds = new Set((bulk ?? []).map((r) => r.id));
+    assert(bulkIds.size === expectedVisible.size, `bulk list returns exactly ${expectedVisible.size} rows (got ${bulkIds.size})`);
+    for (const id of expectedVisible) {
+      assert(bulkIds.has(id), `bulk list includes active seller ${id.slice(0, 8)}…`);
+    }
+    for (const id of tagged) {
+      if (!expectedVisible.has(id)) {
+        assert(!bulkIds.has(id), `bulk list does NOT leak hidden profile ${id.slice(0, 8)}…`);
+      }
+    }
+
+    // 7b) Username search (ilike) on the test tag — must not reveal hidden profiles
+    const { data: searched } = await c
+      .from("profiles")
+      .select("id, username")
+      .ilike("username", `${tag}_%`);
+    const searchedIds = new Set((searched ?? []).map((r) => r.id));
+    for (const id of tagged) {
+      const shouldSee = expectedVisible.has(id);
+      assert(
+        searchedIds.has(id) === shouldSee,
+        `ilike search visibility matches policy for ${id.slice(0, 8)}… (expected ${shouldSee ? "visible" : "hidden"})`,
+      );
+    }
+
+    // 7c) Direct lookup by username of a hidden profile returns nothing
+    const hiddenUsername = `${tag}_buyer`;
+    const { data: byName } = await c.from("profiles").select("id").eq("username", hiddenUsername).maybeSingle();
+    assert(byName == null, "direct username lookup of a non-seller returns no row");
+  }
+
+  console.log("\n[8] visibility is driven by the seller's OWN listings only — not by listings that mention them indirectly");
+  {
+    // The buyer has no products of their own. Even after another seller's
+    // active listing exists in the table, the buyer must remain hidden —
+    // visibility must NOT come from being referenced elsewhere, only from
+    // being the seller_id on an active product.
+    const c = anonClient();
+    assert(!(await visible(c, ids.buyer)), "buyer stays hidden even though other sellers have active listings");
+
+    // And deleting the active_seller's ACTIVE listing (not just marking it
+    // inactive) must also hide their profile — confirms the policy reads
+    // current state, not historical references.
+    await admin.from("products").delete().eq("seller_id", ids.active_seller).eq("status", "active");
+    assert(!(await visible(c, ids.active_seller)), "active seller hides after their only active listing is DELETED");
+  }
 }
 
 run()

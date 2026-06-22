@@ -44,8 +44,21 @@ const admin = createClient(URL, SERVICE, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-type Persona = "active_seller" | "inactive_seller" | "buyer" | "viewer";
-const personas: Persona[] = ["active_seller", "inactive_seller", "buyer", "viewer"];
+type Persona =
+  | "active_seller"        // 1 active listing
+  | "inactive_seller"      // 1 sold listing
+  | "mixed_seller"         // 2 active + 2 inactive listings
+  | "many_inactive_seller" // 3 inactive listings, 0 active
+  | "buyer"
+  | "viewer";
+const personas: Persona[] = [
+  "active_seller",
+  "inactive_seller",
+  "mixed_seller",
+  "many_inactive_seller",
+  "buyer",
+  "viewer",
+];
 const ids: Record<Persona, string> = {} as Record<Persona, string>;
 const emails: Record<Persona, string> = {} as Record<Persona, string>;
 
@@ -119,6 +132,21 @@ async function setup() {
     category: "Streetwear",
     status: "sold",
   });
+
+  // mixed_seller: 2 active + 2 inactive listings
+  await admin.from("products").insert([
+    { seller_id: ids.mixed_seller, title: `${tag} mix a1`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "active" },
+    { seller_id: ids.mixed_seller, title: `${tag} mix a2`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "active" },
+    { seller_id: ids.mixed_seller, title: `${tag} mix s1`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "sold" },
+    { seller_id: ids.mixed_seller, title: `${tag} mix d1`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "draft" },
+  ]);
+
+  // many_inactive_seller: 3 non-active listings, 0 active
+  await admin.from("products").insert([
+    { seller_id: ids.many_inactive_seller, title: `${tag} mi 1`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "sold" },
+    { seller_id: ids.many_inactive_seller, title: `${tag} mi 2`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "draft" },
+    { seller_id: ids.many_inactive_seller, title: `${tag} mi 3`, price: 1000, image_url: "https://example.test/x.jpg", category: "Streetwear", status: "archived" },
+  ]);
 }
 
 async function teardown() {
@@ -139,6 +167,8 @@ async function run() {
     assert(!(await visible(c, ids.inactive_seller)), "does NOT see seller whose only listing is inactive");
     assert(!(await visible(c, ids.buyer)),           "does NOT see buyer (no listings)");
     assert(!(await visible(c, ids.viewer)),          "does NOT see viewer (no listings)");
+    assert(await visible(c, ids.mixed_seller),       "sees seller with mixed active + inactive listings");
+    assert(!(await visible(c, ids.many_inactive_seller)), "does NOT see seller with multiple inactive listings and no active ones");
   }
 
   console.log("\n[2] authenticated viewer (no listings)");
@@ -148,6 +178,8 @@ async function run() {
     assert(await visible(c, ids.active_seller),       "sees seller with active listing");
     assert(!(await visible(c, ids.inactive_seller)), "does NOT see inactive-only seller");
     assert(!(await visible(c, ids.buyer)),           "does NOT see unrelated buyer");
+    assert(await visible(c, ids.mixed_seller),       "sees mixed seller (≥1 active listing)");
+    assert(!(await visible(c, ids.many_inactive_seller)), "does NOT see seller with multiple inactive listings only");
   }
 
   console.log("\n[3] authenticated inactive-only seller");
@@ -165,6 +197,49 @@ async function run() {
     // restore so the next assertion is meaningful
     await admin.from("products").update({ status: "active" }).eq("seller_id", ids.active_seller);
     assert(await visible(c, ids.active_seller),   "seller profile is visible again after re-activating a listing");
+  }
+
+  console.log("\n[5] mixed seller: deactivating ONE of several active listings does not hide them");
+  {
+    // Sanity: mixed_seller starts with 2 active listings
+    const c = anonClient();
+    assert(await visible(c, ids.mixed_seller), "mixed seller is visible at baseline (2 active listings)");
+
+    // Mark one active listing as sold — one active still remains
+    const { data: actives } = await admin
+      .from("products")
+      .select("id")
+      .eq("seller_id", ids.mixed_seller)
+      .eq("status", "active");
+    const firstActiveId = actives?.[0]?.id;
+    assert(!!firstActiveId, "found an active listing to deactivate");
+    if (firstActiveId) {
+      await admin.from("products").update({ status: "sold" }).eq("id", firstActiveId);
+      assert(await visible(c, ids.mixed_seller), "mixed seller still visible while ≥1 active listing remains");
+
+      // Deactivate the remaining active listing -> seller must disappear
+      await admin
+        .from("products")
+        .update({ status: "sold" })
+        .eq("seller_id", ids.mixed_seller)
+        .eq("status", "active");
+      assert(!(await visible(c, ids.mixed_seller)), "mixed seller hidden once ALL listings are inactive");
+    }
+  }
+
+  console.log("\n[6] many-inactive seller becomes visible after adding an active listing");
+  {
+    const c = anonClient();
+    assert(!(await visible(c, ids.many_inactive_seller)), "still hidden with only inactive listings");
+    await admin.from("products").insert({
+      seller_id: ids.many_inactive_seller,
+      title: `${tag} mi newly-active`,
+      price: 1000,
+      image_url: "https://example.test/x.jpg",
+      category: "Streetwear",
+      status: "active",
+    });
+    assert(await visible(c, ids.many_inactive_seller), "becomes visible once a single active listing is added");
   }
 }
 

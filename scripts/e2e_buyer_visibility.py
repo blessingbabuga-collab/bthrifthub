@@ -114,6 +114,8 @@ async def run_browser() -> None:
 
         # 1. Sign in as the buyer through the real /auth UI.
         await page.goto(f"{APP}/auth", wait_until="networkidle")
+        # The dev error overlay can intercept clicks after a hydration warning; hide it.
+        await page.add_style_tag(content="#__lv_err_overlay{display:none!important;pointer-events:none!important;}")
         await page.locator('input[type="email"]').fill(emails["buyer"])
         await page.locator('input[type="password"]').fill(PASSWORD)
         async with page.expect_response(

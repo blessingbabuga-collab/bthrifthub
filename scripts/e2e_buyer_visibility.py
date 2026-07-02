@@ -42,7 +42,7 @@ def check(cond: bool, msg: str) -> None:
         print(f"  ✗ {msg}", file=sys.stderr)
 
 
-def _admin(path: str, method: str = "POST", body: dict | None = None) -> dict:
+def _admin(path: str, method: str = "POST", body: dict | None = None, extra_headers: dict | None = None) -> dict:
     req = urllib.request.Request(
         f"{URL}{path}",
         method=method,
@@ -51,6 +51,7 @@ def _admin(path: str, method: str = "POST", body: dict | None = None) -> dict:
             "Authorization": f"Bearer {SERVICE}",
             "Content-Type": "application/json",
             "Prefer": "return=representation",
+            **(extra_headers or {}),
         },
         data=None if body is None else json.dumps(body).encode(),
     )
@@ -76,10 +77,13 @@ def seed() -> None:
         uid = u.get("id") or u.get("user", {}).get("id")
         assert uid, f"no id for {persona}: {u}"
         ids[persona] = uid
+        # handle_new_user trigger already inserted the profile; upsert to
+        # normalize username/full_name for this test run.
         _admin(
             "/rest/v1/profiles?on_conflict=id",
             "POST",
             {"id": uid, "username": f"{TAG}_{persona}", "full_name": persona},
+            extra_headers={"Prefer": "return=representation,resolution=merge-duplicates"},
         )
     _admin("/rest/v1/products", "POST", [
         {"seller_id": ids["active"], "title": f"{TAG} active", "price": 1000, "image_url": "https://example.test/x.jpg", "category": "Streetwear", "status": "active"},

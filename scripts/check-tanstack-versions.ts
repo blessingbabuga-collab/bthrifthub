@@ -1,51 +1,76 @@
 #!/usr/bin/env bun
 /**
- * Fails if installed @tanstack/react-router*, @tanstack/router-*, and
- * @tanstack/react-start packages drift to incompatible minor versions.
+ * Fails when installed @tanstack/* router/start packages have unsatisfied
+ * cross-dependencies (drift). This catches the class of failure that broke
+ * `build:dev` after previous ad-hoc `bun update` runs.
  *
- * The TanStack Start ↔ Router packages share an internal ABI and MUST stay
- * on the same minor. A drift here previously broke `build:dev`.
+ * For each @tanstack/* package installed in node_modules, we read its
+ * `dependencies` and `peerDependencies` entries that reference OTHER
+ * `@tanstack/*` packages and verify the installed version satisfies the
+ * declared range (semver).
  */
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { satisfies } from "semver";
 
-const GROUP = [
-  "@tanstack/react-router",
-  "@tanstack/react-router-devtools",
-  "@tanstack/react-start",
-  "@tanstack/router-core",
-  "@tanstack/router-devtools",
-  "@tanstack/router-plugin",
-];
+type Pkg = { name: string; version: string; dependencies?: Record<string, string>; peerDependencies?: Record<string, string> };
 
-function installedVersion(pkg: string): string | null {
-  const p = join("node_modules", ...pkg.split("/"), "package.json");
+function readPkg(dir: string): Pkg | null {
+  const p = join(dir, "package.json");
   if (!existsSync(p)) return null;
-  return JSON.parse(readFileSync(p, "utf8")).version as string;
+  try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; }
 }
 
-function minor(v: string) {
-  const [maj, min] = v.split(".");
-  return `${maj}.${min}`;
+function collectTanstackDirs(): string[] {
+  const base = "node_modules/@tanstack";
+  if (!existsSync(base)) return [];
+  return readdirSync(base)
+    .map((d) => join(base, d))
+    .filter((d) => statSync(d).isDirectory());
 }
 
-const rows = GROUP.map((name) => ({ name, version: installedVersion(name) }));
-const missing = rows.filter((r) => !r.version);
-if (missing.length) {
-  console.error("Missing TanStack packages:", missing.map((m) => m.name).join(", "));
+const dirs = collectTanstackDirs();
+const installed = new Map<string, string>();
+const pkgs: Pkg[] = [];
+for (const d of dirs) {
+  const pkg = readPkg(d);
+  if (pkg?.name && pkg.version) {
+    installed.set(pkg.name, pkg.version);
+    pkgs.push(pkg);
+  }
+}
+
+const problems: string[] = [];
+for (const pkg of pkgs) {
+  const check = (kind: "dependencies" | "peerDependencies") => {
+    const block = pkg[kind] ?? {};
+    for (const [dep, range] of Object.entries(block)) {
+      if (!dep.startsWith("@tanstack/")) continue;
+      const actual = installed.get(dep);
+      if (!actual) continue; // optional peer not installed
+      if (!satisfies(actual, range)) {
+        problems.push(
+          `${pkg.name}@${pkg.version} ${kind}["${dep}"] wants "${range}" but installed is ${actual}`,
+        );
+      }
+    }
+  };
+  check("dependencies");
+  check("peerDependencies");
+}
+
+const KEY = [
+  "@tanstack/react-router", "@tanstack/react-start", "@tanstack/router-core",
+  "@tanstack/router-plugin", "@tanstack/react-router-devtools", "@tanstack/router-devtools",
+];
+console.log("Installed key TanStack packages:");
+for (const k of KEY) console.log(`  ${k.padEnd(40)} ${installed.get(k) ?? "<missing>"}`);
+
+if (problems.length) {
+  console.error(`\n✖ TanStack version drift (${problems.length} unsatisfied constraint${problems.length === 1 ? "" : "s"}):`);
+  for (const p of problems) console.error("  - " + p);
+  console.error("\nRun: bun add " + KEY.map((k) => `${k}@latest`).join(" "));
   process.exit(1);
 }
 
-const minors = new Set(rows.map((r) => minor(r.version!)));
-console.log("TanStack package versions:");
-for (const r of rows) console.log(`  ${r.name.padEnd(40)} ${r.version}`);
-
-if (minors.size > 1) {
-  console.error(
-    `\n✖ TanStack router/start version drift detected across minors: ${[...minors].join(", ")}`,
-  );
-  console.error("  Run: bun update " + GROUP.join(" "));
-  process.exit(1);
-}
-
-console.log(`\n✓ All TanStack router/start packages aligned on minor ${[...minors][0]}`);
+console.log(`\n✓ All @tanstack/* cross-dependencies satisfied (${pkgs.length} packages checked)`);

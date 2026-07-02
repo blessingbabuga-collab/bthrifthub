@@ -113,12 +113,16 @@ async def run_browser() -> None:
         page.on("pageerror", lambda e: errors.append(str(e)))
 
         # 1. Sign in as the buyer through the real /auth UI.
-        await page.goto(f"{APP}/auth", wait_until="domcontentloaded")
+        await page.goto(f"{APP}/auth", wait_until="networkidle")
         await page.locator('input[type="email"]').fill(emails["buyer"])
         await page.locator('input[type="password"]').fill(PASSWORD)
-        async with page.expect_navigation(wait_until="domcontentloaded", timeout=15000):
+        async with page.expect_response(
+            lambda r: "/auth/v1/token" in r.url and r.request.method == "POST",
+            timeout=15000,
+        ) as resp_info:
             await page.get_by_role("button", name="Sign in").click()
-        check(not page.url.rstrip("/").endswith("/auth"), f"navigated away from /auth after sign-in (now {page.url})")
+        token_resp = await resp_info.value
+        check(token_resp.status == 200, f"POST /auth/v1/token succeeded ({token_resp.status})")
 
         # 2. Ask the running app's Supabase client who we are.
         signed_in_as = await page.evaluate(

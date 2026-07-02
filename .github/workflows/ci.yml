@@ -17,8 +17,23 @@ jobs:
         with:
           bun-version: latest
 
+      # Cache Bun's global install cache so subsequent CI runs skip the
+      # network downloads for unchanged deps. Keyed by lockfile so any
+      # dependency change invalidates the cache; --frozen-lockfile still
+      # runs, so we get speed without giving up lockfile enforcement.
+      - name: Cache Bun install
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock', '**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install dependencies (frozen lockfile)
         run: bun install --frozen-lockfile
+
+      - name: Validate migrations (schema + RLS invariants)
+        run: bun run check:migrations
 
       - name: Check TanStack router/start version alignment
         run: bun run check:tanstack

@@ -57,30 +57,38 @@ for (const { f, sql } of all) {
   }
 }
 
-// --- 2. Retired policies / grants must not come back ------------------------
-console.log("\n[2] retired broad profile-read patterns stay gone");
-for (const { f, sql } of all) {
-  // Strip DROP POLICY lines so we don't flag the removal itself.
-  const active = sql.replace(/drop\s+policy[^;]*;/gi, "");
+// --- 2. Retired policies / grants must not come back (NET final state) ------
+// Replay migrations in order and track whether a forbidden pattern is
+// currently active. Later DROP/REVOKE cancels an earlier CREATE/GRANT with
+// the same shape.
+console.log("\n[2] retired broad profile-read patterns stay gone (net state)");
+let sellerReadPolicyActive = 0;
+let rowLevelProfilesGrantActive = 0;
+for (const { sql } of all) {
+  // policy profiles_seller_read
+  const creates = (sql.match(/create\s+policy\s+profiles_seller_read\b/gi) || []).length;
+  const drops = (sql.match(/drop\s+policy\s+(?:if\s+exists\s+)?profiles_seller_read\b/gi) || []).length;
+  sellerReadPolicyActive += creates - drops;
 
-  if (/create\s+policy\s+profiles_seller_read\b/i.test(active)) {
-    fail(`${f}: re-introduces retired broad policy profiles_seller_read`);
-  }
-
-  // Any `GRANT SELECT ON public.profiles TO (anon|authenticated)` WITHOUT a
-  // column list is a regression — the whole row must never be publicly SELECTable.
-  const rowGrant =
-    /grant\s+(?:[a-z, ]*\bselect\b[a-z, ]*)\s+on\s+(?:table\s+)?public\.profiles\s+to\s+([^;]+);/gi;
+  // row-level (non-column-scoped) GRANT SELECT ON public.profiles TO anon/authenticated
+  const grantRe =
+    /grant\s+([a-z, ]*\bselect\b[a-z, ]*)\s+on\s+(?:table\s+)?public\.profiles\s+to\s+([^;]+);/gi;
   let g: RegExpExecArray | null;
-  while ((g = rowGrant.exec(active))) {
-    const full = g[0];
-    // Column-scoped grants look like: GRANT SELECT (id, username, ...) ON ...
-    if (!/\bselect\s*\(/i.test(full) && /(anon|authenticated)/i.test(g[1])) {
-      fail(`${f}: row-level GRANT SELECT ON public.profiles to anon/authenticated — must be column-scoped`);
-    }
+  while ((g = grantRe.exec(sql))) {
+    const isColumnScoped = /\bselect\s*\(/i.test(g[0]);
+    if (!isColumnScoped && /(anon|authenticated)/i.test(g[2])) rowLevelProfilesGrantActive += 1;
+  }
+  const revokeRe =
+    /revoke\s+(?:[a-z, ]*\bselect\b[a-z, ]*|all(?:\s+privileges)?)\s+on\s+(?:table\s+)?public\.profiles\s+from\s+([^;]+);/gi;
+  let r: RegExpExecArray | null;
+  while ((r = revokeRe.exec(sql))) {
+    if (/(anon|authenticated)/i.test(r[1])) rowLevelProfilesGrantActive = 0;
   }
 }
-ok("no forbidden broad profile grants or policies");
+if (sellerReadPolicyActive > 0) fail("policy profiles_seller_read is currently active — must stay dropped");
+else ok("policy profiles_seller_read is not active");
+if (rowLevelProfilesGrantActive > 0) fail("row-level GRANT SELECT ON public.profiles to anon/authenticated is currently active — must be column-scoped");
+else ok("no row-level GRANT SELECT ON public.profiles to anon/authenticated is active");
 
 // --- 3. public_seller_profiles view is present ------------------------------
 console.log("\n[3] public_seller_profiles view is defined");

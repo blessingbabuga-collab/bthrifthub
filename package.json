@@ -10,8 +10,11 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test:rls": "bun scripts/test-rls-profiles.ts"
-    ,"check:tanstack": "bun scripts/check-tanstack-versions.ts"
+    "test:rls": "bun scripts/test-rls-profiles.ts",
+    "test:contract": "bun scripts/test-buyer-profile-contract.ts",
+    "test:e2e": "python3 scripts/e2e_buyer_visibility.py",
+    "check:tanstack": "bun scripts/check-tanstack-versions.ts",
+    "check:migrations": "bun scripts/validate-migrations.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.42.4",

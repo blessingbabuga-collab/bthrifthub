@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:rls": "bun scripts/test-rls-profiles.ts"
+    ,"check:tanstack": "bun scripts/check-tanstack-versions.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.42.4",

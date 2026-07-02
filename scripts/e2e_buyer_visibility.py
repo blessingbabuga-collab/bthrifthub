@@ -124,7 +124,14 @@ async def run_browser() -> None:
         signed_in_as = await page.evaluate(
             """async () => {
                 const mod = await import('/src/integrations/supabase/client.ts');
-                const { data } = await mod.supabase.auth.getUser();
+                const s = mod.supabase;
+                // Wait briefly for session hydration after the click.
+                for (let i = 0; i < 20; i++) {
+                    const { data } = await s.auth.getSession();
+                    if (data.session?.user?.email) return data.session.user.email;
+                    await new Promise((r) => setTimeout(r, 100));
+                }
+                const { data } = await s.auth.getUser();
                 return data.user?.email ?? null;
             }"""
         )

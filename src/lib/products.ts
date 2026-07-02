@@ -38,8 +38,8 @@ export async function fetchProduct(id: string) {
 
 export async function fetchSellerProfile(sellerId: string) {
   const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
+    .from("public_seller_profiles")
+    .select("id, username, avatar_url")
     .eq("id", sellerId)
     .maybeSingle();
   if (error) throw error;

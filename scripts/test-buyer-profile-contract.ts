@@ -122,6 +122,38 @@ async function run() {
     const leaked = (bioAttempt as unknown as { bio?: string } | null)?.bio;
     assert(bioErr != null || !leaked, "column-scoped grant blocks bio read for buyers");
   }
+
+  console.log("\n[view] public_seller_profiles — ordered pagination never leaks inactive sellers");
+  {
+    // Simulate the buyer "sellers directory" pattern: order + range paging.
+    const seen = new Set<string>();
+    const PAGE = 1; // small pages force many boundaries
+    for (let from = 0; from < 20; from += PAGE) {
+      const { data, error } = await c
+        .from("public_seller_profiles")
+        .select("id, username")
+        .ilike("username", `${tag}_%`)
+        .order("username", { ascending: true })
+        .range(from, from + PAGE - 1);
+      assert(!error, `page[${from}] succeeds`);
+      if (!data || data.length === 0) break;
+      for (const r of data) seen.add(r.id);
+    }
+    assert(seen.has(ids.active), "pagination reveals active seller");
+    assert(!seen.has(ids.inactive), "pagination does NOT leak inactive-only seller");
+    assert(!seen.has(ids.buyer), "pagination does NOT leak buyer");
+  }
+
+  console.log("\n[view] public_seller_profiles — bulk fetch of many ids stays filtered");
+  {
+    // Emulate a bulk-hydration pattern (e.g. hydrating seller badges for a
+    // page of products). Even when the caller asks for a big id set that
+    // includes hidden ones, only the active seller may come back.
+    const many = [ids.active, ids.inactive, ids.buyer, ids.active, ids.inactive];
+    const { data } = await c.from("public_seller_profiles").select("id").in("id", many);
+    const s = new Set((data ?? []).map((r) => r.id));
+    assert(s.size === 1 && s.has(ids.active), "bulk hydrate returns ONLY active seller");
+  }
 }
 
 run()

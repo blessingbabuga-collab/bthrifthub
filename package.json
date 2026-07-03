@@ -10,9 +10,12 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
     "test:rls": "bun scripts/test-rls-profiles.ts",
     "test:contract": "bun scripts/test-buyer-profile-contract.ts",
+    "test:profiles-negative": "bun scripts/test-profiles-negative.ts",
     "test:e2e": "python3 scripts/e2e_buyer_visibility.py",
+    "test:e2e-listing": "python3 scripts/e2e_listing_to_seller.py",
     "check:tanstack": "bun scripts/check-tanstack-versions.ts",
     "check:migrations": "bun scripts/validate-migrations.ts"
   },

@@ -159,11 +159,26 @@ async def run_browser() -> None:
                 const search = await s.from('public_seller_profiles').select('id, username').ilike('username', p.tag + '_%');
                 const active = await s.from('public_seller_profiles').select('id').eq('id', p.activeId).maybeSingle();
                 const inactive = await s.from('public_seller_profiles').select('id').eq('id', p.inactiveId).maybeSingle();
+                // Paginate 1-row-at-a-time over the search-scoped view; RLS
+                // must apply BEFORE order/range so inactive sellers never
+                // appear at any page boundary.
+                const paged = new Set();
+                for (let from = 0; from < 20; from += 1) {
+                    const { data, error } = await s
+                        .from('public_seller_profiles')
+                        .select('id, username')
+                        .ilike('username', p.tag + '_%')
+                        .order('username', { ascending: true })
+                        .range(from, from);
+                    if (error || !data || data.length === 0) break;
+                    for (const r of data) paged.add(r.id);
+                }
                 return {
                     bulk: (bulk.data ?? []).map((r) => r.id),
                     search: (search.data ?? []).map((r) => r.id),
                     activeVisible: active.data?.id === p.activeId,
                     inactiveVisible: inactive.data != null,
+                    paged: Array.from(paged),
                 };
             }""",
             payload,
@@ -176,6 +191,9 @@ async def run_browser() -> None:
         check(ids["buyer"] not in result["bulk"], "bulk .in() from app EXCLUDES buyer (never a seller)")
         check(ids["active"] in result["search"], "username search from app includes active seller")
         check(ids["inactive"] not in result["search"], "username search from app EXCLUDES inactive seller")
+        check(ids["active"] in result["paged"], "paginated search from app includes active seller")
+        check(ids["inactive"] not in result["paged"], "paginated search from app EXCLUDES inactive seller")
+        check(ids["buyer"] not in result["paged"], "paginated search from app EXCLUDES buyer")
 
         os.makedirs("/tmp/browser", exist_ok=True)
         await page.screenshot(path="/tmp/browser/e2e-buyer-visibility.png")

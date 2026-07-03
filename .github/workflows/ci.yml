@@ -38,5 +38,11 @@ jobs:
       - name: Check TanStack router/start version alignment
         run: bun run check:tanstack
 
+      - name: Typecheck (TypeScript)
+        run: bun run typecheck
+
+      - name: Lint (ESLint)
+        run: bun run lint
+
       - name: Build (dev)
         run: bun run build:dev

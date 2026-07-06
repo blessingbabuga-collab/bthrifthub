@@ -2,16 +2,44 @@ import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImagePlus, Camera, X, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { moderateImage } from "@/lib/moderate-image.functions";
 
 const SIGNED_URL_TTL = 60 * 60 * 24 * 365; // 1 year
 const MAX_IMAGES = 8;
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB
+const MIN_BYTES = 15 * 1024; // 15KB — reject near-empty/solid-color shots
+const MIN_DIMENSION = 400; // px on the shortest side
 
 export type UploadedImage = { url: string; path: string };
 
+async function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  const url = URL.createObjectURL(file);
+  try {
+    return await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => reject(new Error("Could not read image"));
+      img.src = url;
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 async function uploadOne(file: File, userId: string): Promise<UploadedImage> {
   if (file.size > MAX_BYTES) throw new Error(`${file.name} is larger than 8MB`);
+  if (file.size < MIN_BYTES) throw new Error(`${file.name} looks empty or too low-quality`);
   if (!file.type.startsWith("image/")) throw new Error(`${file.name} is not an image`);
+  try {
+    const { width, height } = await readImageDimensions(file);
+    if (Math.min(width, height) < MIN_DIMENSION) {
+      throw new Error(`${file.name} is too small (min ${MIN_DIMENSION}px)`);
+    }
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("too small")) throw e;
+    throw new Error(`${file.name} could not be read`);
+  }
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
   const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { error } = await supabase.storage.from("product-images").upload(path, file, {
@@ -39,6 +67,7 @@ export function ImageUploader({
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const moderate = useServerFn(moderateImage);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -49,8 +78,28 @@ export function ImageUploader({
     try {
       const uploaded: UploadedImage[] = [];
       for (const f of list) {
-        try { uploaded.push(await uploadOne(f, userId)); }
-        catch (e) { toast.error(e instanceof Error ? e.message : "Upload failed"); }
+        let img: UploadedImage | null = null;
+        try {
+          img = await uploadOne(f, userId);
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Upload failed");
+          continue;
+        }
+        // Content moderation — reject and clean up if the image is unsafe / low quality.
+        try {
+          const result = await moderate({ data: { imageUrl: img.url } });
+          if (!result.approved) {
+            const reason = result.reasons?.[0] ?? "Image did not pass moderation";
+            toast.error(`${f.name}: ${reason}`);
+            void supabase.storage.from("product-images").remove([img.path]);
+            continue;
+          }
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Could not verify image");
+          void supabase.storage.from("product-images").remove([img.path]);
+          continue;
+        }
+        uploaded.push(img);
       }
       if (uploaded.length) onChange([...value, ...uploaded]);
     } finally { setBusy(false); }
@@ -110,7 +159,7 @@ export function ImageUploader({
         </button>
       </div>
       <p className="mt-2 text-[11px] text-muted-foreground">
-        Up to {MAX_IMAGES} photos · 8MB each · first image is the cover · drag arrows to reorder
+        Up to {MAX_IMAGES} photos · 8MB each · min {MIN_DIMENSION}px · auto-checked for quality & safety
       </p>
     </div>
   );

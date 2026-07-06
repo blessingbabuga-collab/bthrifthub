@@ -159,7 +159,7 @@ export function ImageUploader({
         </button>
       </div>
       <p className="mt-2 text-[11px] text-muted-foreground">
-        Up to {MAX_IMAGES} photos · 8MB each · first image is the cover · drag arrows to reorder
+        Up to {MAX_IMAGES} photos · 8MB each · min {MIN_DIMENSION}px · auto-checked for quality & safety
       </p>
     </div>
   );

@@ -1,9 +1,11 @@
 {
   "version": 1,
-  "asset_id": "14747f2d-bbcd-4260-b5ba-78c754ef7443",
+  "asset_id": "f9b7eb48-560b-458d-ace0-ce940866ed2b",
   "project_id": "93f4a68f-1e32-4903-9b58-a9e8da3f6310",
-  "url": "/__l5e/assets-v1/14747f2d-bbcd-4260-b5ba-78c754ef7443/bthrifts-walkthrough.mp4",
+  "url": "/__l5e/assets-v1/f9b7eb48-560b-458d-ace0-ce940866ed2b/bthrifts-walkthrough.mp4",
+  "r2_key": "a/v1/93f4a68f-1e32-4903-9b58-a9e8da3f6310/f9b7eb48-560b-458d-ace0-ce940866ed2b/bthrifts-walkthrough.mp4",
   "original_filename": "bthrifts-walkthrough.mp4",
-  "size": 14711901,
-  "created_at": "2026-06-04T09:49:02Z"
+  "size": 16221037,
+  "content_type": "video/mp4",
+  "created_at": "2026-07-07T09:06:38Z"
 }

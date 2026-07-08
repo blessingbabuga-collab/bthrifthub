@@ -27,7 +27,7 @@ function Browse() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <BackButton fallback="/" />
         <h1 className="font-display text-4xl md:text-5xl">Browse Thrift</h1>
-        <p className="text-sm text-muted-foreground mt-1">Curated finds from sellers across Nigeria.</p>
+        <p className="text-sm text-muted-foreground mt-1">Curated finds from trusted thrift sellers.</p>
 
         <div className="mt-6 flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
           <button className="shrink-0 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-amber text-amber text-sm">

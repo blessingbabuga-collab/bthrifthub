@@ -46,6 +46,149 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          order_id: string
+          product_id: string
+          quantity: number
+          seller_id: string
+          title: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          order_id: string
+          product_id: string
+          quantity: number
+          seller_id: string
+          title: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          order_id?: string
+          product_id?: string
+          quantity?: number
+          seller_id?: string
+          title?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_events: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address_line: string
+          buyer_id: string
+          city: string
+          created_at: string
+          full_name: string
+          id: string
+          notes: string | null
+          payment_method: string
+          payment_ref: string | null
+          phone: string
+          shipping_fee: number
+          state: string
+          status: string
+          subtotal: number
+          total: number
+          tracking_code: string
+          updated_at: string
+        }
+        Insert: {
+          address_line: string
+          buyer_id: string
+          city: string
+          created_at?: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          payment_ref?: string | null
+          phone: string
+          shipping_fee?: number
+          state: string
+          status?: string
+          subtotal?: number
+          total?: number
+          tracking_code?: string
+          updated_at?: string
+        }
+        Update: {
+          address_line?: string
+          buyer_id?: string
+          city?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          payment_ref?: string | null
+          phone?: string
+          shipping_fee?: number
+          state?: string
+          status?: string
+          subtotal?: number
+          total?: number
+          tracking_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand: string | null

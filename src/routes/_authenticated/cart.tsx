@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -15,6 +15,7 @@ type Row = { id: string; quantity: number; product: { id: string; title: string;
 
 function CartPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["cart"],
     queryFn: async () => {
@@ -70,7 +71,12 @@ function CartPage() {
                 <p className="text-xs text-muted-foreground">Subtotal</p>
                 <p className="font-display text-3xl text-amber">{formatNaira(total)}</p>
               </div>
-              <button className="h-12 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow">Checkout</button>
+              <button
+                onClick={() => navigate({ to: "/checkout" })}
+                className="h-12 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:scale-[1.02] transition-transform"
+              >
+                Checkout →
+              </button>
             </div>
           </>
         )}

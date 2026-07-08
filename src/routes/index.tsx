@@ -21,10 +21,10 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "BTHRIFTS — Nigeria's Premium Thrift Marketplace" },
-      { name: "description", content: "Buy & sell affordable thrift fashion, shoes, bags, furniture and gadgets across all 36 Nigerian states. Built for Naija." },
-      { property: "og:title", content: "BTHRIFTS — Nigeria's Premium Thrift Marketplace" },
-      { property: "og:description", content: "Africa-inspired thrift marketplace. Buy and sell securely with escrow protection." },
+      { title: "BTHRIFTS — The Premium Thrift Marketplace" },
+      { name: "description", content: "Buy & sell affordable thrift fashion, shoes, bags, furniture and gadgets. A global thrift community." },
+      { property: "og:title", content: "BTHRIFTS — The Premium Thrift Marketplace" },
+      { property: "og:description", content: "A modern thrift marketplace. Buy and sell securely with escrow protection." },
     ],
   }),
 });
@@ -56,14 +56,14 @@ function Index() {
         <div className="relative mx-auto max-w-6xl px-4 pt-14 pb-16 md:pt-24 md:pb-24 grid md:grid-cols-2 gap-10 items-center">
           <div className="text-center md:text-left animate-fade-in">
             <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-amber">
-              <Flame className="h-3.5 w-3.5" /> Nigeria's #1 Thrift Marketplace
+              <Flame className="h-3.5 w-3.5" /> The #1 Thrift Marketplace
             </span>
             <h1 className="font-display text-5xl md:text-7xl leading-[0.95] mt-5">
-              Africa's <span className="text-amber">Thrift</span><br />
+              Everyday <span className="text-amber">Thrift</span><br />
               Reimagined.
             </h1>
             <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-lg md:mx-0 mx-auto">
-              Premium pre-loved fashion, sneakers, bags, gadgets and furniture — from trusted Naija sellers, delivered nationwide with escrow protection.
+              Premium pre-loved fashion, sneakers, bags, gadgets and furniture — from trusted sellers, delivered with escrow protection.
             </p>
             <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
               <Link to="/browse" className="inline-flex items-center gap-2 px-8 h-13 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:scale-[1.02] transition-transform">
@@ -76,7 +76,7 @@ function Index() {
             <div className="mt-7 flex items-center gap-5 justify-center md:justify-start text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5"><Star className="h-4 w-4 fill-amber text-amber" /> <strong className="text-foreground">4.9</strong> · 2,400+ reviews</div>
               <div className="h-4 w-px bg-border" />
-              <div>🇳🇬 All 36 states</div>
+              <div>Trusted sellers worldwide</div>
             </div>
           </div>
 
@@ -163,13 +163,13 @@ function Index() {
       {/* TRUST PILLARS */}
       <section className="mx-auto max-w-6xl px-4 mt-24">
         <div className="divider-amber mb-10" />
-        <h2 className="font-display text-4xl md:text-5xl text-center">Built for Naija buyers &amp; sellers</h2>
-        <p className="mt-3 text-center text-base text-muted-foreground max-w-xl mx-auto">Secure transactions, lightning-fast listings, nationwide delivery.</p>
+        <h2 className="font-display text-4xl md:text-5xl text-center">Built for thrift buyers &amp; sellers</h2>
+        <p className="mt-3 text-center text-base text-muted-foreground max-w-xl mx-auto">Secure transactions, lightning-fast listings, reliable delivery.</p>
         <div className="mt-10 grid sm:grid-cols-3 gap-4">
           {[
             { Icon: ShieldCheck, t: "Escrow Protected", d: "We hold payment until you confirm delivery. Zero risk, zero scams." },
-            { Icon: Wallet, t: "List in 60 Seconds", d: "Snap, price, publish. Reach thousands of Naija buyers instantly." },
-            { Icon: Truck, t: "Nationwide Delivery", d: "Trusted riders to all 36 states with transparent pricing." },
+            { Icon: Wallet, t: "List in 60 Seconds", d: "Snap, price, publish. Reach thousands of buyers instantly." },
+            { Icon: Truck, t: "Reliable Delivery", d: "Trusted couriers with transparent pricing and tracking." },
           ].map(({ Icon, t, d }) => (
             <div key={t} className="bg-card border border-border rounded-3xl p-6 hover:border-amber transition-colors">
               <div className="h-12 w-12 rounded-2xl bg-amber/10 border border-amber/30 flex items-center justify-center">

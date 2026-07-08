@@ -7,7 +7,7 @@ export function SiteFooter() {
         <div className="md:col-span-2">
           <Logo className="h-10" />
           <p className="mt-4 text-sm text-muted-foreground max-w-sm">
-            Nigeria's social-commerce thrift marketplace. Discover, buy and sell affordable thrift in Naira — securely.
+            A social-commerce thrift marketplace. Discover, buy and sell affordable thrift — securely.
           </p>
         </div>
         <div>
@@ -24,7 +24,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Bthrifs Marketplace. Made in Nigeria.
+        © {new Date().getFullYear()} Bthrifs Marketplace. Thrift, reimagined.
       </div>
     </footer>
   );

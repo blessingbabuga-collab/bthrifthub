@@ -76,7 +76,7 @@ function SellPage() {
       <div className="mx-auto max-w-2xl px-4 py-10">
         <BackButton fallback="/" />
         <h1 className="font-display text-4xl md:text-5xl">List a thrift item</h1>
-        <p className="text-base text-muted-foreground mt-2">Reach buyers across Nigeria in under a minute.</p>
+        <p className="text-base text-muted-foreground mt-2">Reach thousands of thrift buyers in under a minute.</p>
 
         <form onSubmit={submit} className="mt-8 space-y-6">
           <Field label="Product title" required>
@@ -115,8 +115,8 @@ function SellPage() {
             <textarea rows={5} value={form.description} onChange={(e) => set("description", e.target.value)} className={inputCls + " h-auto py-3 resize-none leading-relaxed"} placeholder="Tell buyers about fit, fabric, condition, defects…" />
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 pt-2">
-            <button disabled={loading} type="submit" className="h-14 rounded-2xl bg-amber text-accent-foreground font-bold text-base shadow-amber disabled:opacity-60 hover:scale-[1.01] transition-transform">
-              {loading ? "Uploading…" : "Upload listing"}
+            <button disabled={loading} type="submit" className="h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-[0_20px_60px_-20px_rgba(16,185,129,0.55)] disabled:opacity-60 hover:scale-[1.01] transition-all">
+              {loading ? "Uploading…" : "＋ Add / Upload listing"}
             </button>
             <AlertDialog>
               <AlertDialogTrigger asChild>

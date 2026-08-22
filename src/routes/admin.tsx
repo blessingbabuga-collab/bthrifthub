@@ -122,25 +122,26 @@ function AdminDashboard() {
                 <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
                 {tab.label}
               </button>
+            )
+          })}
+        </div>
+
+        {/* CONTENT */}
+        <main>
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              <AdminStats />
+              <div className="grid lg:grid-cols-2 gap-6">
+                <AdminVerifications />
+                <AdminDisputes />
               </div>
             </div>
           )}
-          
           {activeTab === 'users' && <AdminUsers />}
-          
-          {activeTab === 'verifications' && (
-            <div className="max-w-4xl">
-              <AdminVerifications />
-            </div>
-          )}
-          
-          {activeTab === 'disputes' && (
-            <div className="max-w-4xl">
-              <AdminDisputes />
-            </div>
-          )}
-        </div>
-        
+          {activeTab === 'verifications' && <AdminVerifications />}
+          {activeTab === 'disputes' && <AdminDisputes />}
+          {activeTab === 'emails' && <AdminEmailTemplates />}
+        </main>
       </div>
     </div>
   )

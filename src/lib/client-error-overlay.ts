@@ -2,7 +2,7 @@
 // load failures (504s on /node_modules/.vite/deps/*, dynamic import
 // rejections, etc.) surface a real message instead of a blank screen.
 
-if (typeof window !== "undefined" && !(window as any).__lvErrOverlayInstalled) {
+if (import.meta.env.DEV && typeof window !== "undefined" && !(window as any).__lvErrOverlayInstalled) {
   (window as any).__lvErrOverlayInstalled = true;
 
   const render = (title: string, detail: string, raw?: unknown) => {

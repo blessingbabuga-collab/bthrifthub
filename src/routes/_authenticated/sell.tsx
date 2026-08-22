@@ -32,6 +32,7 @@ function SellPage() {
     title: "", description: "", price: "", original_price: "",
     category: "Women", condition: "Good",
     brand: "", size: "", color: "", location: "",
+    is_private: false,
   };
   const [form, setForm] = useState(initialForm);
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -44,7 +45,7 @@ function SellPage() {
   };
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v }));
-
+  const setBoolean = (k: keyof typeof form, v: boolean) => setForm((s) => ({ ...s, [k]: v }));
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length === 0) { toast.error("Add at least one photo"); return; }
@@ -63,6 +64,7 @@ function SellPage() {
       size: form.size || null,
       color: form.color || null,
       location: form.location || null,
+      is_private: form.is_private,
     }).select("id").single();
     setLoading(false);
     if (error) { toast.error(error.message); return; }
@@ -114,6 +116,24 @@ function SellPage() {
           <Field label="Description" optional>
             <textarea rows={5} value={form.description} onChange={(e) => set("description", e.target.value)} className={inputCls + " h-auto py-3 resize-none leading-relaxed"} placeholder="Tell buyers about fit, fabric, condition, defects…" />
           </Field>
+          
+          <div className="bg-secondary/50 rounded-2xl p-5 border border-border">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={form.is_private}
+                onChange={(e) => setBoolean("is_private", e.target.checked)}
+                className="mt-1 w-5 h-5 rounded border-amber text-amber focus:ring-amber/20 bg-background"
+              />
+              <div>
+                <span className="block font-semibold text-foreground">Make this product private</span>
+                <span className="block text-sm text-muted-foreground mt-0.5">
+                  Only you will be able to see this product. It will be hidden from the public marketplace, but its price will still be calculated towards your total Wardrobe Value.
+                </span>
+              </div>
+            </label>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 pt-2">
             <button disabled={loading} type="submit" className="h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-[0_20px_60px_-20px_rgba(16,185,129,0.55)] disabled:opacity-60 hover:scale-[1.01] transition-all">
               {loading ? "Uploading…" : "＋ Add / Upload listing"}

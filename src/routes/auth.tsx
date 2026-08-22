@@ -67,7 +67,7 @@ function AuthPage() {
       <div className="w-full max-w-sm bg-card border border-border rounded-3xl p-8 shadow-glow">
         <div className="flex items-center justify-between mb-2">
           <BackButton fallback="/" />
-          <Link to="/"><Logo className="h-8" /></Link>
+          <Link to="/"><Logo className="h-10 sm:h-12 w-auto" /></Link>
         </div>
         <h1 className="font-display text-3xl text-center mt-6">
           {mode === "signin" ? "Welcome back" : "Join Bthrifts"}
@@ -90,15 +90,15 @@ function AuthPage() {
           <span className="flex-1 h-px bg-border" /> or email <span className="flex-1 h-px bg-border" />
         </div>
 
-        <form onSubmit={handleEmail} className="space-y-3">
+        <form suppressHydrationWarning onSubmit={handleEmail} className="space-y-3">
           {mode === "signup" && (
             <>
-              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" />
-              <input required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" />
+              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" suppressHydrationWarning />
+              <input required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" suppressHydrationWarning />
             </>
           )}
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" />
-          <input required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" />
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" suppressHydrationWarning />
+          <input required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-12 px-4 rounded-xl bg-input border border-border outline-none focus:border-amber" suppressHydrationWarning />
           {mode === "signin" && (
             <div className="text-right -mt-1">
               <Link to="/forgot-password" className="text-xs text-amber">Forgot password?</Link>

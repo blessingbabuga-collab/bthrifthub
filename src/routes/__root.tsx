@@ -11,6 +11,9 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import "@/lib/client-error-overlay";
+import { useEffect } from "react";
+import { setupPushNotifications } from "@/lib/firebase";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -108,11 +111,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
+    <html lang="en" suppressHydrationWarning>
+      <head suppressHydrationWarning>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Scripts />
       </body>
@@ -122,6 +125,22 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) {
+        setupPushNotifications(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.id) {
+        setupPushNotifications(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

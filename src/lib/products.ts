@@ -21,9 +21,10 @@ export type DbProduct = {
 
 export const formatNaira = (n: number) => `₦${Number(n).toLocaleString("en-NG")}`;
 
-export async function fetchProducts(opts: { category?: string; limit?: number } = {}) {
+export async function fetchProducts(opts: { category?: string; search?: string; limit?: number } = {}) {
   let q = supabase.from("products").select("*").eq("status", "active").order("created_at", { ascending: false });
   if (opts.category && opts.category !== "All") q = q.eq("category", opts.category);
+  if (opts.search) q = q.ilike("title", `%${opts.search}%`);
   if (opts.limit) q = q.limit(opts.limit);
   const { data, error } = await q;
   if (error) throw error;

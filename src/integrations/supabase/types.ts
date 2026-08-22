@@ -10,7 +10,32 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.15"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -42,6 +67,229 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chats: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          product_id: string
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          product_id: string
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          evidence_urls: string[] | null
+          id: string
+          order_id: string
+          raised_by: string
+          reason: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          evidence_urls?: string[] | null
+          id?: string
+          order_id: string
+          raised_by: string
+          reason: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          evidence_urls?: string[] | null
+          id?: string
+          order_id?: string
+          raised_by?: string
+          reason?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_raised_by_fkey"
+            columns: ["raised_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_raised_by_fkey"
+            columns: ["raised_by"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followers: {
+        Row: {
+          created_at: string
+          follower_id: string | null
+          following_id: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id?: string | null
+          following_id?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string | null
+          following_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followers_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followers_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followers_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followers_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          chat_id: string
+          content: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          is_read: boolean | null
+          sender_id: string
+        }
+        Insert: {
+          chat_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_read?: boolean | null
+          sender_id: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_read?: boolean | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -135,6 +383,7 @@ export type Database = {
           buyer_id: string
           city: string
           created_at: string
+          escrow_status: string | null
           full_name: string
           id: string
           notes: string | null
@@ -154,6 +403,7 @@ export type Database = {
           buyer_id: string
           city: string
           created_at?: string
+          escrow_status?: string | null
           full_name: string
           id?: string
           notes?: string | null
@@ -173,6 +423,7 @@ export type Database = {
           buyer_id?: string
           city?: string
           created_at?: string
+          escrow_status?: string | null
           full_name?: string
           id?: string
           notes?: string | null
@@ -250,34 +501,280 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          cover_image: string | null
           created_at: string
+          fcm_token: string | null
+          followers_count: number | null
           full_name: string | null
           id: string
+          is_verified: boolean | null
           location: string | null
+          rating: number | null
+          role: string | null
+          style_tags: string[] | null
+          total_sales: number | null
           updated_at: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          cover_image?: string | null
           created_at?: string
+          fcm_token?: string | null
+          followers_count?: number | null
           full_name?: string | null
           id: string
+          is_verified?: boolean | null
           location?: string | null
+          rating?: number | null
+          role?: string | null
+          style_tags?: string[] | null
+          total_sales?: number | null
           updated_at?: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          cover_image?: string | null
           created_at?: string
+          fcm_token?: string | null
+          followers_count?: number | null
           full_name?: string | null
           id?: string
+          is_verified?: boolean | null
           location?: string | null
+          rating?: number | null
+          role?: string | null
+          style_tags?: string[] | null
+          total_sales?: number | null
           updated_at?: string
           username?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          buyer_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          order_id: string
+          photos: string[] | null
+          rating: number
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_id: string
+          photos?: string[] | null
+          rating: number
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          photos?: string[] | null
+          rating?: number
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          net_amount: number
+          order_id: string | null
+          platform_commission: number | null
+          status: string
+          type: string
+          updated_at: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          net_amount: number
+          order_id?: string | null
+          platform_commission?: number | null
+          status?: string
+          type: string
+          updated_at?: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          net_amount?: number
+          order_id?: string | null
+          platform_commission?: number | null
+          status?: string
+          type?: string
+          updated_at?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verifications: {
+        Row: {
+          created_at: string
+          document_url: string
+          id: string
+          notes: string | null
+          selfie_url: string
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_url: string
+          id?: string
+          notes?: string | null
+          selfie_url: string
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_url?: string
+          id?: string
+          notes?: string | null
+          selfie_url?: string
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verifications_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verifications_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          available_balance: number
+          created_at: string
+          id: string
+          pending_balance: number
+          updated_at: string
+          user_id: string
+          withdrawn_balance: number
+        }
+        Insert: {
+          available_balance?: number
+          created_at?: string
+          id?: string
+          pending_balance?: number
+          updated_at?: string
+          user_id: string
+          withdrawn_balance?: number
+        }
+        Update: {
+          available_balance?: number
+          created_at?: string
+          id?: string
+          pending_balance?: number
+          updated_at?: string
+          user_id?: string
+          withdrawn_balance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wishlist_items: {
         Row: {
@@ -459,6 +956,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

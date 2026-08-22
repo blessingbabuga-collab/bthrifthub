@@ -12,14 +12,16 @@ import { SlidersHorizontal } from "lucide-react";
 
 export const Route = createFileRoute("/browse")({
   component: Browse,
+  validateSearch: (search: Record<string, unknown>) => ({ q: search.q as string | undefined }),
   head: () => ({ meta: [{ title: "Browse Thrift — Bthrifs Marketplace" }] }),
 });
 
 function Browse() {
+  const { q } = Route.useSearch();
   const [cat, setCat] = useState<string>("All");
   const { data, isLoading } = useQuery({
-    queryKey: ["products", cat],
-    queryFn: () => fetchProducts({ category: cat === "All" ? undefined : cat }),
+    queryKey: ["products", cat, q],
+    queryFn: () => fetchProducts({ category: cat === "All" ? undefined : cat, search: q }),
   });
   return (
     <div className="min-h-screen pb-20 sm:pb-0">

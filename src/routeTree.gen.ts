@@ -9,33 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as BrowseRouteImport } from './routes/browse'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProductIdRouteImport } from './routes/product.$id'
-import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
-import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
-import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
+import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
+import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
+import { Route as AuthenticatedStoreSetupRouteImport } from './routes/_authenticated/store-setup'
+import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
+import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as WardrobeUsernameRouteImport } from './routes/wardrobe.$username'
+import { Route as AuthenticatedInboxChatIdRouteImport } from './routes/_authenticated/inbox.$chatId'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BrowseRoute = BrowseRouteImport.update({
-  id: '/browse',
-  path: '/browse',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -43,28 +48,24 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProductIdRoute = ProductIdRouteImport.update({
-  id: '/product/$id',
-  path: '/product/$id',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
-  id: '/wishlist',
-  path: '/wishlist',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSellRoute = AuthenticatedSellRouteImport.update({
-  id: '/sell',
-  path: '/sell',
+const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
@@ -72,11 +73,47 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
+const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSellRoute = AuthenticatedSellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStoreSetupRoute = AuthenticatedStoreSetupRouteImport.update({
+  id: '/store-setup',
+  path: '/store-setup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WardrobeUsernameRoute = WardrobeUsernameRouteImport.update({
+  id: '/wardrobe/$username',
+  path: '/wardrobe/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedInboxChatIdRoute =
+  AuthenticatedInboxChatIdRouteImport.update({
+    id: '/$chatId',
+    path: '/$chatId',
+    getParentRoute: () => AuthenticatedInboxRoute,
+  } as any)
 const AuthenticatedOrdersIndexRoute =
   AuthenticatedOrdersIndexRouteImport.update({
     id: '/orders/',
@@ -91,29 +128,41 @@ const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/sell': typeof AuthenticatedSellRoute
+  '/store-setup': typeof AuthenticatedStoreSetupRoute
+  '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
+  '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/sell': typeof AuthenticatedSellRoute
+  '/store-setup': typeof AuthenticatedStoreSetupRoute
+  '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
+  '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
 }
@@ -121,15 +170,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/_authenticated/sell': typeof AuthenticatedSellRoute
+  '/_authenticated/store-setup': typeof AuthenticatedStoreSetupRoute
+  '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
+  '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/_authenticated/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
 }
@@ -137,44 +192,62 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/browse'
     | '/forgot-password'
     | '/reset-password'
     | '/cart'
     | '/checkout'
+    | '/inbox'
     | '/sell'
+    | '/store-setup'
+    | '/wallet'
     | '/wishlist'
     | '/product/$id'
+    | '/wardrobe/$username'
+    | '/inbox/$chatId'
     | '/orders/$id'
     | '/orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/auth'
     | '/browse'
     | '/forgot-password'
     | '/reset-password'
     | '/cart'
     | '/checkout'
+    | '/inbox'
     | '/sell'
+    | '/store-setup'
+    | '/wallet'
     | '/wishlist'
     | '/product/$id'
+    | '/wardrobe/$username'
+    | '/inbox/$chatId'
     | '/orders/$id'
     | '/orders'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/admin'
     | '/auth'
     | '/browse'
     | '/forgot-password'
     | '/reset-password'
     | '/_authenticated/cart'
     | '/_authenticated/checkout'
+    | '/_authenticated/inbox'
     | '/_authenticated/sell'
+    | '/_authenticated/store-setup'
+    | '/_authenticated/wallet'
     | '/_authenticated/wishlist'
     | '/product/$id'
+    | '/wardrobe/$username'
+    | '/_authenticated/inbox/$chatId'
     | '/_authenticated/orders/$id'
     | '/_authenticated/orders/'
   fileRoutesById: FileRoutesById
@@ -182,41 +255,22 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ProductIdRoute: typeof ProductIdRoute
+  WardrobeUsernameRoute: typeof WardrobeUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/browse': {
-      id: '/browse'
-      path: '/browse'
-      fullPath: '/browse'
-      preLoaderRoute: typeof BrowseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -226,32 +280,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/product/$id': {
-      id: '/product/$id'
-      path: '/product/$id'
-      fullPath: '/product/$id'
-      preLoaderRoute: typeof ProductIdRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/wishlist': {
-      id: '/_authenticated/wishlist'
-      path: '/wishlist'
-      fullPath: '/wishlist'
-      preLoaderRoute: typeof AuthenticatedWishlistRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/sell': {
-      id: '/_authenticated/sell'
-      path: '/sell'
-      fullPath: '/sell'
-      preLoaderRoute: typeof AuthenticatedSellRouteImport
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/cart': {
+      id: '/_authenticated/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof AuthenticatedCartRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/checkout': {
@@ -261,12 +329,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/cart': {
-      id: '/_authenticated/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof AuthenticatedCartRouteImport
+    '/_authenticated/inbox': {
+      id: '/_authenticated/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AuthenticatedInboxRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sell': {
+      id: '/_authenticated/sell'
+      path: '/sell'
+      fullPath: '/sell'
+      preLoaderRoute: typeof AuthenticatedSellRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store-setup': {
+      id: '/_authenticated/store-setup'
+      path: '/store-setup'
+      fullPath: '/store-setup'
+      preLoaderRoute: typeof AuthenticatedStoreSetupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wallet': {
+      id: '/_authenticated/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AuthenticatedWalletRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wishlist': {
+      id: '/_authenticated/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof AuthenticatedWishlistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wardrobe/$username': {
+      id: '/wardrobe/$username'
+      path: '/wardrobe/$username'
+      fullPath: '/wardrobe/$username'
+      preLoaderRoute: typeof WardrobeUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/inbox/$chatId': {
+      id: '/_authenticated/inbox/$chatId'
+      path: '/$chatId'
+      fullPath: '/inbox/$chatId'
+      preLoaderRoute: typeof AuthenticatedInboxChatIdRouteImport
+      parentRoute: typeof AuthenticatedInboxRoute
     }
     '/_authenticated/orders/': {
       id: '/_authenticated/orders/'
@@ -285,10 +402,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedInboxRouteChildren {
+  AuthenticatedInboxChatIdRoute: typeof AuthenticatedInboxChatIdRoute
+}
+
+const AuthenticatedInboxRouteChildren: AuthenticatedInboxRouteChildren = {
+  AuthenticatedInboxChatIdRoute: AuthenticatedInboxChatIdRoute,
+}
+
+const AuthenticatedInboxRouteWithChildren =
+  AuthenticatedInboxRoute._addFileChildren(AuthenticatedInboxRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedInboxRoute: typeof AuthenticatedInboxRouteWithChildren
   AuthenticatedSellRoute: typeof AuthenticatedSellRoute
+  AuthenticatedStoreSetupRoute: typeof AuthenticatedStoreSetupRoute
+  AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
@@ -297,7 +428,10 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedInboxRoute: AuthenticatedInboxRouteWithChildren,
   AuthenticatedSellRoute: AuthenticatedSellRoute,
+  AuthenticatedStoreSetupRoute: AuthenticatedStoreSetupRoute,
+  AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
@@ -309,11 +443,13 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ProductIdRoute: ProductIdRoute,
+  WardrobeUsernameRoute: WardrobeUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -125,7 +125,7 @@ function Index() {
         </div>
         <div className="relative rounded-[2rem] overflow-hidden border border-border bg-card shadow-glow group">
           <video
-            src={walkthrough.url}
+            src="https://www.w3schools.com/html/mov_bbb.mp4"
             autoPlay muted loop playsInline controls
             className="w-full h-auto max-h-[560px] object-cover"
             poster={model}

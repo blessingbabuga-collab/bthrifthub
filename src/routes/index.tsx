@@ -15,7 +15,6 @@ import bag from "@/assets/product-bag.jpg";
 import shoes from "@/assets/product-shoes.jpg";
 import shades from "@/assets/product-shades.jpg";
 import flatlay from "@/assets/thrift-flatlay.jpg";
-import walkthrough from "../../public/bthrifts-walkthrough.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -125,9 +124,12 @@ function Index() {
         </div>
         <div className="relative rounded-[2rem] overflow-hidden border border-border bg-card shadow-glow group">
           <video
-            src="https://www.w3schools.com/html/mov_bbb.mp4"
-            autoPlay muted loop playsInline controls
-            className="w-full h-auto max-h-[560px] object-cover"
+            src="/bthrifts-walkthrough.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full aspect-video object-cover"
             poster={model}
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

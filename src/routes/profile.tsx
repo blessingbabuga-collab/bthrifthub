@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Package, Store, Wallet, Settings, ChevronRight } from "lucide-react";
+import { LogOut, Package, Store, Wallet, Settings, ChevronRight, ShieldCheck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/profile")({
@@ -73,6 +73,19 @@ function ProfileDashboard() {
         {/* Hub Links */}
         <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm mb-8">
           <div className="divide-y divide-border">
+            {profile?.role === 'admin' && (
+              <Link to="/admin" className="flex items-center gap-4 p-5 hover:bg-indigo-50 transition-colors bg-indigo-50/50">
+                <div className="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-indigo-900">Admin Dashboard</h3>
+                  <p className="text-xs text-indigo-600/80">Manage users, disputes, and verifications</p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-indigo-400" />
+              </Link>
+            )}
+            
             <Link to="/wardrobe/$username" params={{ username: profile?.username || "unknown" }} className="flex items-center gap-4 p-5 hover:bg-secondary/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
                 <Store className="h-5 w-5" />

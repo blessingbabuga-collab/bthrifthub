@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
-import { Search, ShieldAlert, ShieldCheck, MoreVertical } from 'lucide-react'
+import { Search, ShieldAlert, ShieldCheck, MoreVertical, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
 export function AdminUsers() {
@@ -97,7 +98,7 @@ export function AdminUsers() {
                         onClick={async () => {
                           try {
                             const newStatus = !user.is_verified
-                            const { error } = await supabase.rpc('admin_update_user', {
+                            const { error } = await (supabase as any).rpc('admin_update_user', {
                               target_user_id: user.id,
                               new_role: user.role,
                               new_is_verified: newStatus
@@ -117,7 +118,7 @@ export function AdminUsers() {
                         onClick={async () => {
                           try {
                             const newRole = user.role === 'admin' ? 'user' : 'admin'
-                            const { error } = await supabase.rpc('admin_update_user', {
+                            const { error } = await (supabase as any).rpc('admin_update_user', {
                               target_user_id: user.id,
                               new_role: newRole,
                               new_is_verified: user.is_verified
@@ -133,6 +134,13 @@ export function AdminUsers() {
                       >
                         Make {user.role === 'admin' ? 'User' : 'Admin'}
                       </button>
+                      <Link 
+                        to="/wardrobe/$username" 
+                        params={{ username: user.username }}
+                        className="text-xs px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1"
+                      >
+                        Wardrobe <ExternalLink className="h-3 w-3" />
+                      </Link>
                     </div>
                   </td>
                 </tr>

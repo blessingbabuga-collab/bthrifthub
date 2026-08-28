@@ -16,6 +16,7 @@ export type DbProduct = {
   color: string | null;
   location: string | null;
   status: string;
+  shadow_banned?: boolean;
   created_at: string;
 };
 

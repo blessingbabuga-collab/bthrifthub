@@ -15,8 +15,18 @@ export const Route = createFileRoute('/wardrobe/$username')({
 
 function WardrobeComponent() {
   const { username } = Route.useParams()
-  const { session } = useAuth()
+  const { session, user } = useAuth()
   const currentUserId = session?.user?.id
+
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ['profile', currentUserId],
+    enabled: !!currentUserId,
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('role').eq('id', currentUserId).maybeSingle()
+      return data
+    }
+  })
+  const isAdmin = currentUserProfile?.role === 'admin'
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile', username],
@@ -87,10 +97,10 @@ function WardrobeComponent() {
   }
 
   // Determine visibility
-  const canViewWardrobe = isOwner || !profile.is_wardrobe_private
-  const visibleProducts = allProducts?.filter(p => isOwner || !p.is_private) || []
+  const canViewWardrobe = isOwner || isAdmin || !profile.is_wardrobe_private
+  const visibleProducts = allProducts?.filter(p => isOwner || isAdmin || !p.is_private) || []
   const totalWardrobeValue = allProducts?.reduce((sum, p) => sum + Number(p.price || 0), 0) || 0
-  const canViewValue = isOwner || profile.is_wardrobe_value_visible
+  const canViewValue = isOwner || isAdmin || profile.is_wardrobe_value_visible
 
   return (
     <div className="min-h-screen bg-background pb-24 sm:pb-0">

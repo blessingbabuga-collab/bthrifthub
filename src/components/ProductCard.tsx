@@ -23,8 +23,13 @@ export function ProductCard({ p, isOwner }: { p: CardProduct, isOwner?: boolean 
             -{discount}%
           </span>
         )}
+        {(p as any).shadow_banned && (
+          <span className="absolute top-2 right-2 bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm z-10">
+            SHADOW BANNED
+          </span>
+        )}
         {!isOwner && (
-          <div role="button" aria-label="Favorite" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur-md border border-border text-muted-foreground hover:text-foreground hover:bg-background transition-all">
+          <div role="button" aria-label="Favorite" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="absolute bottom-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur-md border border-border text-muted-foreground hover:text-foreground hover:bg-background transition-all">
             <Heart className="h-4 w-4" />
           </div>
         )}

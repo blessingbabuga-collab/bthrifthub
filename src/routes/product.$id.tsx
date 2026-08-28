@@ -18,12 +18,31 @@ function ProductPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: p, isLoading, error } = useQuery({ queryKey: ["product", id], queryFn: () => fetchProduct(id) });
+  const { data: p, isLoading, error, refetch } = useQuery({ queryKey: ["product", id], queryFn: () => fetchProduct(id) });
   const { data: seller } = useQuery({
     queryKey: ["seller", p?.seller_id],
     queryFn: () => fetchSellerProfile(p!.seller_id),
     enabled: !!p?.seller_id,
   });
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('role').eq('id', user!.id).maybeSingle();
+      return data;
+    }
+  });
+  
+  const isAdmin = profile?.role === 'admin';
+
+  const toggleShadowBan = async () => {
+    if (!p) return;
+    const { error } = await (supabase as any).from('products').update({ shadow_banned: !p.shadow_banned }).eq('id', p.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(p.shadow_banned ? 'Unbanned product' : 'Shadow banned product');
+    refetch();
+  };
 
   const requireAuth = () => {
     if (!user) { navigate({ to: "/auth" }); return false; }
@@ -147,6 +166,18 @@ function ProductPage() {
               <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-amber" /> Protected by Bthrifts escrow — pay only after delivery.
               </div>
+
+              {isAdmin && (
+                <div className="mt-6 p-4 border border-destructive/30 bg-destructive/10 rounded-2xl flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-destructive text-sm">Admin Controls</h3>
+                    <p className="text-xs text-muted-foreground">Currently: {p.shadow_banned ? 'Shadow Banned' : 'Visible to Public'}</p>
+                  </div>
+                  <button onClick={toggleShadowBan} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-xs font-bold hover:bg-destructive/90 transition-colors">
+                    {p.shadow_banned ? 'Remove Shadow Ban' : 'Shadow Ban Product'}
+                  </button>
+                </div>
+              )}
 
               <button onClick={chatSeller} className="mt-6 w-full h-12 rounded-full border-2 border-amber text-amber font-semibold inline-flex items-center justify-center gap-2 hover:bg-amber hover:text-accent-foreground transition-colors">
                 <MessageCircle className="h-4 w-4" /> Chat seller on WhatsApp

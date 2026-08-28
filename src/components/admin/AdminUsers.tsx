@@ -97,7 +97,11 @@ export function AdminUsers() {
                         onClick={async () => {
                           try {
                             const newStatus = !user.is_verified
-                            const { error } = await supabase.from('profiles').update({ is_verified: newStatus }).eq('id', user.id)
+                            const { error } = await supabase.rpc('admin_update_user', {
+                              target_user_id: user.id,
+                              new_role: user.role,
+                              new_is_verified: newStatus
+                            })
                             if (error) throw error
                             toast.success(`User ${newStatus ? 'Verified' : 'Unverified'}`)
                             refetch()
@@ -113,7 +117,11 @@ export function AdminUsers() {
                         onClick={async () => {
                           try {
                             const newRole = user.role === 'admin' ? 'user' : 'admin'
-                            const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', user.id)
+                            const { error } = await supabase.rpc('admin_update_user', {
+                              target_user_id: user.id,
+                              new_role: newRole,
+                              new_is_verified: user.is_verified
+                            })
                             if (error) throw error
                             toast.success(`User role changed to ${newRole}`)
                             refetch()

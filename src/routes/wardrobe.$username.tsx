@@ -98,13 +98,15 @@ function WardrobeComponent() {
       
       <div className="mx-auto max-w-6xl py-8 px-4 font-sans text-foreground">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-full h-48 bg-secondary rounded-2xl mb-16 relative overflow-hidden border border-border shadow-sm">
-            {profile.cover_image ? (
-              <img src={profile.cover_image} alt="Cover" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-r from-amber/50 to-primary/50" />
-            )}
-            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+          <div className="w-full relative mb-16">
+            <div className="w-full h-48 bg-secondary rounded-2xl overflow-hidden border border-border shadow-sm">
+              {profile.cover_image ? (
+                <img src={profile.cover_image} alt="Cover" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-r from-amber/50 to-primary/50" />
+              )}
+            </div>
+            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-10">
               {profile.avatar_url ? (
                 <img src={profile.avatar_url} alt={profile.full_name} className="w-24 h-24 rounded-full border-4 border-background shadow-sm object-cover bg-background" />
               ) : (

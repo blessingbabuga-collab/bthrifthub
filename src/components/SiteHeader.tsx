@@ -19,7 +19,7 @@ export function SiteHeader() {
     queryKey: ['hasStore', user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data } = await supabase.from('bank_accounts').select('id').eq('user_id', user!.id).maybeSingle();
+      const { data } = await (supabase as any).from('bank_accounts').select('id').eq('user_id', user!.id).maybeSingle();
       return !!data;
     }
   });

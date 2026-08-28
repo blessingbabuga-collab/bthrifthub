@@ -75,7 +75,7 @@ function AdminDashboard() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <div className="bg-indigo-600 p-2 rounded-lg">
-                <ShieldCheck className="h-6 w-6 text-white" />
+                <ShieldCheck className="h-6 w-6 text-foreground" />
               </div>
               <h1 className="text-xl font-bold tracking-tight text-slate-900">BTHRIFTS Admin</h1>
             </div>

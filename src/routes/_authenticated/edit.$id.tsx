@@ -1,13 +1,13 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
-import { MobileNav } from "@/components/MobileNav";
-import { BackButton } from "@/components/BackButton";
-import { ImageUploader, type UploadedImage } from "@/components/ImageUploader";
-import { supabase } from "@/integrations/supabase/client";
-import { categories } from "@/data/products";
-import { toast } from "sonner";
+import * as React from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '../../integrations/supabase/client'
+import { toast } from 'sonner'
+import { SiteHeader } from '@/components/SiteHeader'
+import { SiteFooter } from '@/components/SiteFooter'
+import { MobileNav } from '@/components/MobileNav'
+import { BackButton } from '@/components/BackButton'
+import { ImageUploader } from '@/components/ImageUploader'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,40 +18,88 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog'
+import { categories } from '@/data/products'
 
-export const Route = createFileRoute("/_authenticated/sell")({
-  component: SellPage,
-  head: () => ({ meta: [{ title: "List a thrift item — Bthrifts" }] }),
-});
+export const Route = createFileRoute('/_authenticated/edit/$id')({
+  component: EditProductRoute,
+})
 
-function SellPage() {
-  const navigate = useNavigate();
-  const { user } = Route.useRouteContext();
-  const initialForm = {
-    title: "", description: "", price: "", original_price: "",
-    category: "Women", condition: "Good",
-    brand: "", size: "", color: "", location: "",
-    is_private: false,
-  };
-  const [form, setForm] = useState(initialForm);
-  const [images, setImages] = useState<UploadedImage[]>([]);
-  const [loading, setLoading] = useState(false);
+const initialForm = {
+  title: "", description: "", price: "", original_price: "",
+  category: "Women", condition: "Like New", brand: "", size: "", color: "", location: "",
+  is_private: false
+};
 
-  const resetDraft = () => {
-    setForm(initialForm);
-    setImages([]);
-    toast.success("Draft deleted");
-  };
+function EditProductRoute() {
+  const { id } = Route.useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  
+  const [form, setForm] = React.useState(initialForm);
+  const [images, setImages] = React.useState<{ url: string }[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [isFetching, setIsFetching] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadProduct() {
+      const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
+      if (error || !data) {
+        toast.error("Could not load product");
+        navigate({ to: "/profile" });
+        return;
+      }
+      if (data.seller_id !== user?.id) {
+        toast.error("Unauthorized");
+        navigate({ to: "/profile" });
+        return;
+      }
+      
+      setForm({
+        title: data.title || "",
+        description: data.description || "",
+        price: data.price ? String(data.price) : "",
+        original_price: data.original_price ? String(data.original_price) : "",
+        category: data.category || "Women",
+        condition: data.condition || "Like New",
+        brand: data.brand || "",
+        size: data.size || "",
+        color: data.color || "",
+        location: data.location || "",
+        // @ts-expect-error
+        is_private: data.is_private || false
+      });
+
+      const loadedImages = [];
+      if (data.image_url) loadedImages.push({ url: data.image_url });
+      if (data.extra_images) loadedImages.push(...data.extra_images.map(url => ({ url })));
+      setImages(loadedImages);
+      
+      setIsFetching(false);
+    }
+    if (user?.id) loadProduct();
+  }, [id, user?.id, navigate]);
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v }));
   const setBoolean = (k: keyof typeof form, v: boolean) => setForm((s) => ({ ...s, [k]: v }));
+  
+  const handleDelete = async () => {
+    setLoading(true);
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+    toast.success('Listing deleted completely');
+    navigate({ to: '/profile' });
+  };
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length === 0) { toast.error("Add at least one photo"); return; }
     setLoading(true);
-    const { data, error } = await supabase.from("products").insert({
-      seller_id: user.id,
+    
+    const { error } = await supabase.from("products").update({
       title: form.title,
       description: form.description || null,
       price: Number(form.price),
@@ -64,29 +112,35 @@ function SellPage() {
       size: form.size || null,
       color: form.color || null,
       location: form.location || null,
-      // @ts-expect-error - is_private not in types yet
+      // @ts-expect-error
       is_private: form.is_private,
-    }).select("id").single();
+    }).eq('id', id);
+    
     setLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Listing published!");
-    navigate({ to: "/product/$id", params: { id: data!.id } });
+    
+    toast.success("Listing updated successfully!");
+    navigate({ to: "/product/$id", params: { id } });
   };
+
+  if (isFetching) {
+    return <div className="min-h-screen pb-20 sm:pb-0 flex flex-col"><SiteHeader /><div className="flex-1 flex justify-center py-20 text-muted-foreground">Loading product...</div><MobileNav /></div>
+  }
 
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
       <div className="mx-auto max-w-2xl px-4 py-10">
-        <BackButton fallback="/" />
-        <h1 className="font-display text-4xl md:text-5xl">List a thrift item</h1>
-        <p className="text-base text-muted-foreground mt-2">Reach thousands of thrift buyers in under a minute.</p>
+        <BackButton fallback={`/product/${id}`} />
+        <h1 className="font-display text-4xl md:text-5xl">Edit listing</h1>
+        <p className="text-base text-muted-foreground mt-2">Update your product details and photos.</p>
 
         <form onSubmit={submit} className="mt-8 space-y-6">
           <Field label="Product title" required>
             <input required value={form.title} onChange={(e) => set("title", e.target.value)} className={inputCls} placeholder="e.g. Vintage Levi's denim jacket" />
           </Field>
           <Field label="Photos" required hint="Upload from your gallery, files, or camera. The first photo is your cover.">
-            <ImageUploader userId={user.id} value={images} onChange={setImages} />
+            <ImageUploader userId={user!.id} value={images} onChange={setImages} />
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Price (₦)" required>
@@ -135,27 +189,48 @@ function SellPage() {
             </label>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 pt-4">
             <button disabled={loading} type="submit" className="h-14 rounded-full bg-primary text-primary-foreground font-display font-bold uppercase tracking-widest text-lg shadow-glow disabled:opacity-60 hover:opacity-90 active:scale-95 transition-all">
-              {loading ? "Uploading…" : "＋ Publish Listing"}
+              {loading ? "Updating…" : "Update Listing"}
             </button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <button type="button" disabled={loading} className="h-14 px-8 rounded-full border border-border text-muted-foreground font-bold hover:bg-secondary hover:text-foreground transition-colors disabled:opacity-60">
-                  Discard
+                <button type="button" disabled={loading} className="h-14 px-8 rounded-full border border-destructive/40 text-destructive font-bold hover:bg-destructive hover:text-destructive-foreground transition-colors disabled:opacity-60">
+                  Delete
                 </button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this draft?</AlertDialogTitle>
+                  <AlertDialogTitle>Delete this listing completely?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will clear all the details and photos you've added. This action cannot be undone.
+                    This will permanently remove the product from BTHRIFTS. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={resetDraft} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    Yes, delete draft
+                  <AlertDialogCancel>Keep product</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Yes, delete it
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button type="button" disabled={loading} className="h-14 px-8 rounded-full border border-border text-muted-foreground font-bold hover:bg-secondary hover:text-foreground transition-colors disabled:opacity-60">
+                  Cancel
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Your unsaved edits will be lost.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep editing</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => navigate({ to: `/product/${id}` })} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Discard edits
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

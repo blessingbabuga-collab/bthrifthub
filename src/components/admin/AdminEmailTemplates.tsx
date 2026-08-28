@@ -21,9 +21,9 @@ export function AdminEmailTemplates() {
   const { data: templates, isLoading } = useQuery({
     queryKey: ["email-templates"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("email_templates").select("*").order("event_type");
+      const { data, error } = await (supabase as any).from("email_templates").select("*").order("event_type");
       if (error) throw error;
-      return data as EmailTemplate[];
+      return data as unknown as EmailTemplate[];
     },
   });
 
@@ -39,7 +39,7 @@ export function AdminEmailTemplates() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!selectedTemplate) return;
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("email_templates")
         .update({ subject, body_html: bodyHtml, updated_at: new Date().toISOString() })
         .eq("id", selectedTemplate.id);
@@ -97,7 +97,7 @@ export function AdminEmailTemplates() {
                 <button
                   onClick={() => updateMutation.mutate()}
                   disabled={updateMutation.isPending}
-                  className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-2 bg-indigo-600 text-foreground px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
                   {updateMutation.isPending ? "Saving..." : "Save Template"}

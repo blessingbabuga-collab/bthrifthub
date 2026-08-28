@@ -58,7 +58,7 @@ export function AdminVerifications() {
                 </div>
               </div>
               <div className="flex gap-3 w-full sm:w-auto">
-                <button onClick={() => handleVerify(v.id, 'approved')} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-500 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-600 font-medium transition-colors shadow-sm shadow-emerald-500/20">
+                <button onClick={() => handleVerify(v.id, 'approved')} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-500 text-foreground px-5 py-2.5 rounded-lg hover:bg-emerald-600 font-medium transition-colors shadow-sm shadow-emerald-500/20">
                   <CheckCircle className="h-4 w-4" /> Approve
                 </button>
                 <button onClick={() => handleVerify(v.id, 'rejected')} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-red-200 text-red-600 px-5 py-2.5 rounded-lg hover:bg-red-50 hover:border-red-300 font-medium transition-colors">

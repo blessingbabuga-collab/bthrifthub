@@ -239,7 +239,7 @@ function CheckoutPage() {
               <button
                 disabled={submitting}
                 type="submit"
-                className="mt-5 w-full h-13 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-[0_20px_60px_-20px_rgba(16,185,129,0.55)] disabled:opacity-60 transition-all"
+                className="mt-5 w-full h-13 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-foreground font-bold text-base shadow-[0_20px_60px_-20px_rgba(16,185,129,0.55)] disabled:opacity-60 transition-all"
               >
                 {submitting ? "Placing order…" : `Place order · ${formatNaira(total)}`}
               </button>

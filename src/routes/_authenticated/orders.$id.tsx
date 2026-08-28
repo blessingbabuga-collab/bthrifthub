@@ -51,6 +51,7 @@ function OrderDetail() {
   });
 
   const markShipped = async () => {
+    // @ts-expect-error - RPC function not in types yet
     const { error } = await supabase.rpc("mark_order_shipped", { target_order_id: id });
     if (error) { toast.error(error.message); return; }
     toast.success("Order marked as shipped");
@@ -65,6 +66,7 @@ function OrderDetail() {
 
   const confirmDelivery = async () => {
     if (!confirm("Are you sure you have received this order? Escrow funds will be released to the seller.")) return;
+    // @ts-expect-error - RPC function not in types yet
     const { error } = await supabase.rpc("confirm_delivery", { target_order_id: id });
     if (error) { toast.error(error.message); return; }
     toast.success("Delivery confirmed. Escrow funds released.");
@@ -112,15 +114,15 @@ function OrderDetail() {
         <BackButton fallback="/orders" />
         <div className="flex items-center justify-between flex-wrap gap-4 mt-6">
           <div>
-            <h1 className="font-display text-4xl tracking-tight text-white/95">Order #{o.tracking_code}</h1>
-            <p className="text-sm font-medium text-white/50 mt-1">Placed {new Date(o.created_at).toLocaleString()}</p>
+            <h1 className="font-display text-4xl tracking-tight text-foreground/95">Order #{o.tracking_code}</h1>
+            <p className="text-sm font-medium text-muted-foreground mt-1">Placed {new Date(o.created_at).toLocaleString()}</p>
           </div>
           <Link to="/orders" className="text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors">All orders →</Link>
         </div>
 
         {/* Tracking timeline */}
-        <section className="mt-10 bg-[#15151a] shadow-2xl border border-white/5 rounded-[24px] p-8">
-          <h2 className="font-display text-2xl tracking-tight text-white/95 mb-8">Delivery tracking</h2>
+        <section className="mt-10 bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+          <h2 className="font-display text-2xl tracking-tight text-foreground/95 mb-8">Delivery tracking</h2>
           {cancelled ? (
             <div className="flex items-center gap-4 text-red-400 bg-red-500/5 p-6 rounded-2xl border border-red-500/10">
               <XCircle className="h-8 w-8" />
@@ -138,12 +140,12 @@ function OrderDetail() {
                 const event = o.order_status_events.find((e) => e.status === s.key);
                 return (
                   <li key={s.key} className="flex gap-4">
-                    <div className={`shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-all ${done ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "border-white/10 bg-black/20 text-white/30"}`}>
+                    <div className={`shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-all ${done ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "border-border bg-black/20 text-foreground/30"}`}>
                       {done ? <Icon className="h-5 w-5" /> : <Circle className="h-4 w-4" />}
                     </div>
                     <div className="flex-1 pb-2">
-                      <p className={`font-bold tracking-tight ${active ? "text-amber-500 text-lg" : done ? "text-white/90" : "text-white/40"}`}>{s.label}</p>
-                      {event && <p className="text-sm font-medium text-white/50 mt-1">{event.note} · {new Date(event.created_at).toLocaleString()}</p>}
+                      <p className={`font-bold tracking-tight ${active ? "text-amber-500 text-lg" : done ? "text-foreground/90" : "text-muted-foreground/80"}`}>{s.label}</p>
+                      {event && <p className="text-sm font-medium text-muted-foreground mt-1">{event.note} · {new Date(event.created_at).toLocaleString()}</p>}
                     </div>
                   </li>
                 );
@@ -154,7 +156,7 @@ function OrderDetail() {
           {isSeller && o.status === "paid" && (
             <button
               onClick={markShipped}
-              className="mt-8 w-full h-12 rounded-full bg-indigo-500 hover:bg-indigo-400 active:scale-95 text-white font-bold transition-all shadow-[0_4px_20px_-5px_rgba(99,102,241,0.4)]"
+              className="mt-8 w-full h-12 rounded-full bg-indigo-500 hover:bg-indigo-400 active:scale-95 text-foreground font-bold transition-all shadow-[0_4px_20px_-5px_rgba(99,102,241,0.4)]"
             >
               Mark as Shipped
             </button>
@@ -163,7 +165,7 @@ function OrderDetail() {
           {isBuyer && ["shipped", "out_for_delivery"].includes(o.status) && (
             <button
               onClick={confirmDelivery}
-              className="mt-8 w-full h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold transition-all shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+              className="mt-8 w-full h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-foreground font-bold transition-all shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
             >
               Confirm Delivery & Release Funds
             </button>
@@ -182,25 +184,25 @@ function OrderDetail() {
         </section>
 
         {/* Items */}
-        <section className="mt-8 bg-[#15151a] shadow-2xl border border-white/5 rounded-[24px] p-8">
-          <h2 className="font-display text-2xl tracking-tight text-white/95 mb-6">Items</h2>
+        <section className="mt-8 bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+          <h2 className="font-display text-2xl tracking-tight text-foreground/95 mb-6">Items</h2>
           <ul className="space-y-4">
             {o.order_items.map((i) => (
-              <li key={i.id} className="flex gap-4 items-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors border border-transparent hover:border-white/5">
+              <li key={i.id} className="flex gap-4 items-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors border border-transparent hover:border-border/50">
                 <img src={i.image_url} alt="" className="w-20 h-20 rounded-xl object-cover shadow-md" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white/90 line-clamp-1">{i.title}</p>
-                  <p className="text-sm font-medium text-white/50 mt-1">Qty {i.quantity}</p>
+                  <p className="font-bold text-foreground/90 line-clamp-1">{i.title}</p>
+                  <p className="text-sm font-medium text-muted-foreground mt-1">Qty {i.quantity}</p>
                 </div>
-                <p className="font-bold text-lg tracking-tight text-white/95">{formatNaira(Number(i.unit_price) * i.quantity)}</p>
+                <p className="font-bold text-lg tracking-tight text-foreground/95">{formatNaira(Number(i.unit_price) * i.quantity)}</p>
               </li>
             ))}
           </ul>
-          <div className="mt-6 pt-6 border-t border-white/5 space-y-3 text-base font-medium">
-            <div className="flex justify-between"><span className="text-white/50">Subtotal</span><span className="text-white/90">{formatNaira(Number(o.subtotal))}</span></div>
-            <div className="flex justify-between"><span className="text-white/50">Delivery</span><span className="text-white/90">{formatNaira(Number(o.shipping_fee))}</span></div>
-            <div className="flex justify-between pt-4 mt-2 border-t border-white/5 items-baseline">
-              <span className="text-white/50 font-bold">Total</span>
+          <div className="mt-6 pt-6 border-t border-border/50 space-y-3 text-base font-medium">
+            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="text-foreground/90">{formatNaira(Number(o.subtotal))}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span className="text-foreground/90">{formatNaira(Number(o.shipping_fee))}</span></div>
+            <div className="flex justify-between pt-4 mt-2 border-t border-border/50 items-baseline">
+              <span className="text-muted-foreground font-bold">Total</span>
               <span className="font-display text-3xl tracking-tight text-amber-500">{formatNaira(Number(o.total))}</span>
             </div>
           </div>
@@ -208,21 +210,21 @@ function OrderDetail() {
 
         {/* Address + payment */}
         <section className="mt-8 grid sm:grid-cols-2 gap-6">
-          <div className="bg-[#15151a] shadow-2xl border border-white/5 rounded-[24px] p-8">
-            <h3 className="font-display text-2xl tracking-tight text-white/95">Ship to</h3>
-            <div className="mt-4 text-sm font-medium text-white/60 space-y-1.5">
-              <p className="font-bold text-white/95 text-base">{o.full_name}</p>
+          <div className="bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+            <h3 className="font-display text-2xl tracking-tight text-foreground/95">Ship to</h3>
+            <div className="mt-4 text-sm font-medium text-muted-foreground space-y-1.5">
+              <p className="font-bold text-foreground/95 text-base">{o.full_name}</p>
               <p>{o.address_line}</p>
               <p>{o.city}, {o.state}</p>
-              <p className="text-white/40 pt-2">{o.phone}</p>
-              {o.notes && <p className="text-sm text-white/40 mt-3 pt-3 border-t border-white/5">Note: {o.notes}</p>}
+              <p className="text-muted-foreground/80 pt-2">{o.phone}</p>
+              {o.notes && <p className="text-sm text-muted-foreground/80 mt-3 pt-3 border-t border-border/50">Note: {o.notes}</p>}
             </div>
           </div>
-          <div className="bg-[#15151a] shadow-2xl border border-white/5 rounded-[24px] p-8">
-            <h3 className="font-display text-2xl tracking-tight text-white/95">Payment</h3>
-            <div className="mt-4 text-sm font-medium text-white/60 space-y-1.5">
-              <p className="font-bold text-white/95 text-base capitalize">{o.payment_method === "cod" ? "Cash on delivery" : o.payment_method}</p>
-              {o.payment_ref && <p className="text-sm text-white/40 pt-2">Ref: {o.payment_ref}</p>}
+          <div className="bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+            <h3 className="font-display text-2xl tracking-tight text-foreground/95">Payment</h3>
+            <div className="mt-4 text-sm font-medium text-muted-foreground space-y-1.5">
+              <p className="font-bold text-foreground/95 text-base capitalize">{o.payment_method === "cod" ? "Cash on delivery" : o.payment_method}</p>
+              {o.payment_ref && <p className="text-sm text-muted-foreground/80 pt-2">Ref: {o.payment_ref}</p>}
             </div>
           </div>
         </section>

@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { Search, ShieldAlert, ShieldCheck, MoreVertical } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('')
 
-  const { data: users, isLoading } = useQuery({
+  const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['admin_users', searchTerm],
     queryFn: async () => {
       let query = supabase
@@ -91,9 +92,40 @@ export function AdminUsers() {
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                      <MoreVertical className="h-5 w-5" />
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const newStatus = !user.is_verified
+                            const { error } = await supabase.from('profiles').update({ is_verified: newStatus }).eq('id', user.id)
+                            if (error) throw error
+                            toast.success(`User ${newStatus ? 'Verified' : 'Unverified'}`)
+                            refetch()
+                          } catch (err: any) {
+                            toast.error(err.message)
+                          }
+                        }}
+                        className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                      >
+                        {user.is_verified ? 'Unverify' : 'Verify'}
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const newRole = user.role === 'admin' ? 'user' : 'admin'
+                            const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', user.id)
+                            if (error) throw error
+                            toast.success(`User role changed to ${newRole}`)
+                            refetch()
+                          } catch (err: any) {
+                            toast.error(err.message)
+                          }
+                        }}
+                        className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                      >
+                        Make {user.role === 'admin' ? 'User' : 'Admin'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

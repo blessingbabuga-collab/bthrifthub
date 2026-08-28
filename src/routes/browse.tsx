@@ -12,7 +12,7 @@ import { SlidersHorizontal } from "lucide-react";
 
 export const Route = createFileRoute("/browse")({
   component: Browse,
-  validateSearch: (search: Record<string, unknown>) => ({ q: search.q as string | undefined }),
+  validateSearch: (search: Record<string, unknown>): { q?: string } => ({ q: search.q as string | undefined }),
   head: () => ({ meta: [{ title: "Browse Thrift — Bthrifs Marketplace" }] }),
 });
 

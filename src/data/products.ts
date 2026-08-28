@@ -34,4 +34,4 @@ export const categories = [
   { name: "Lifestyle", emoji: "🏺" },
 ];
 
-export const formatNaira = (n: number) => `₦${n.toLocaleString("en-NG")}`;
+export const formatNaira = (n: number) => `₦${n.toLocaleString("en-US")}`;

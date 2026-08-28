@@ -69,7 +69,7 @@ export function AdminDisputes() {
                 </div>
                 
                 <div className="flex flex-col justify-start gap-2 w-full md:w-48 shrink-0">
-                  <button className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 font-medium text-sm transition-colors">
+                  <button className="w-full flex items-center justify-center gap-2 bg-slate-900 text-foreground px-4 py-2 rounded-lg hover:bg-slate-800 font-medium text-sm transition-colors">
                     <MessagesSquare className="h-4 w-4" /> Message Parties
                   </button>
                   <div className="h-px bg-slate-200 my-1 w-full" />

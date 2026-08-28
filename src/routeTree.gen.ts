@@ -15,16 +15,19 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedStoreSetupRouteImport } from './routes/_authenticated/store-setup'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as WardrobeUsernameRouteImport } from './routes/wardrobe.$username'
+import { Route as AuthenticatedEditIdRouteImport } from './routes/_authenticated/edit.$id'
 import { Route as AuthenticatedInboxChatIdRouteImport } from './routes/_authenticated/inbox.$chatId'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
@@ -58,6 +61,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -81,6 +89,11 @@ const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
 const AuthenticatedSellRoute = AuthenticatedSellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStoreSetupRoute = AuthenticatedStoreSetupRouteImport.update({
@@ -108,6 +121,11 @@ const WardrobeUsernameRoute = WardrobeUsernameRouteImport.update({
   path: '/wardrobe/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedEditIdRoute = AuthenticatedEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInboxChatIdRoute =
   AuthenticatedInboxChatIdRouteImport.update({
     id: '/$chatId',
@@ -132,16 +150,19 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/sell': typeof AuthenticatedSellRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/store-setup': typeof AuthenticatedStoreSetupRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/edit/$id': typeof AuthenticatedEditIdRoute
   '/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -152,16 +173,19 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/sell': typeof AuthenticatedSellRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/store-setup': typeof AuthenticatedStoreSetupRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/edit/$id': typeof AuthenticatedEditIdRoute
   '/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
@@ -174,16 +198,19 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/_authenticated/sell': typeof AuthenticatedSellRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/store-setup': typeof AuthenticatedStoreSetupRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/_authenticated/edit/$id': typeof AuthenticatedEditIdRoute
   '/_authenticated/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -196,16 +223,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/forgot-password'
+    | '/profile'
     | '/reset-password'
     | '/cart'
     | '/checkout'
     | '/inbox'
     | '/sell'
+    | '/settings'
     | '/store-setup'
     | '/wallet'
     | '/wishlist'
     | '/product/$id'
     | '/wardrobe/$username'
+    | '/edit/$id'
     | '/inbox/$chatId'
     | '/orders/$id'
     | '/orders/'
@@ -216,16 +246,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/forgot-password'
+    | '/profile'
     | '/reset-password'
     | '/cart'
     | '/checkout'
     | '/inbox'
     | '/sell'
+    | '/settings'
     | '/store-setup'
     | '/wallet'
     | '/wishlist'
     | '/product/$id'
     | '/wardrobe/$username'
+    | '/edit/$id'
     | '/inbox/$chatId'
     | '/orders/$id'
     | '/orders'
@@ -237,16 +270,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/forgot-password'
+    | '/profile'
     | '/reset-password'
     | '/_authenticated/cart'
     | '/_authenticated/checkout'
     | '/_authenticated/inbox'
     | '/_authenticated/sell'
+    | '/_authenticated/settings'
     | '/_authenticated/store-setup'
     | '/_authenticated/wallet'
     | '/_authenticated/wishlist'
     | '/product/$id'
     | '/wardrobe/$username'
+    | '/_authenticated/edit/$id'
     | '/_authenticated/inbox/$chatId'
     | '/_authenticated/orders/$id'
     | '/_authenticated/orders/'
@@ -259,6 +295,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ProductIdRoute: typeof ProductIdRoute
   WardrobeUsernameRoute: typeof WardrobeUsernameRoute
@@ -308,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -341,6 +385,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof AuthenticatedSellRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store-setup': {
@@ -377,6 +428,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/wardrobe/$username'
       preLoaderRoute: typeof WardrobeUsernameRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/edit/$id': {
+      id: '/_authenticated/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/edit/$id'
+      preLoaderRoute: typeof AuthenticatedEditIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inbox/$chatId': {
       id: '/_authenticated/inbox/$chatId'
@@ -418,9 +476,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRouteWithChildren
   AuthenticatedSellRoute: typeof AuthenticatedSellRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStoreSetupRoute: typeof AuthenticatedStoreSetupRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
+  AuthenticatedEditIdRoute: typeof AuthenticatedEditIdRoute
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
 }
@@ -430,9 +490,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRouteWithChildren,
   AuthenticatedSellRoute: AuthenticatedSellRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStoreSetupRoute: AuthenticatedStoreSetupRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
+  AuthenticatedEditIdRoute: AuthenticatedEditIdRoute,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
 }
@@ -447,6 +509,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ProductIdRoute: ProductIdRoute,
   WardrobeUsernameRoute: WardrobeUsernameRoute,

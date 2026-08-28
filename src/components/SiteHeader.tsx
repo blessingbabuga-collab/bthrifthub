@@ -24,6 +24,17 @@ export function SiteHeader() {
     }
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('role').eq('id', user!.id).maybeSingle();
+      return data;
+    }
+  });
+  
+  const isAdmin = profile?.role === 'admin';
+
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-6">
@@ -58,6 +69,10 @@ export function SiteHeader() {
           
           {isMounted && user && (
             <Link to="/orders" className="hidden sm:flex px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Orders</Link>
+          )}
+
+          {isMounted && isAdmin && (
+            <Link to="/admin" className="hidden sm:flex px-3 py-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors bg-indigo-50 hover:bg-indigo-100 rounded-md">Admin</Link>
           )}
 
           <div className="flex items-center ml-2 sm:border-l border-border sm:pl-4 space-x-1">

@@ -7,7 +7,7 @@ import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/products";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle } from "lucide-react";
+import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   component: OrderDetail,
@@ -86,6 +86,23 @@ function OrderDetail() {
     toast.success("Order cancelled");
     qc.invalidateQueries({ queryKey: ["order", id] });
     qc.invalidateQueries({ queryKey: ["orders"] });
+  };
+
+  const chatSeller = async (sellerId: string, itemTitle: string) => {
+    try {
+      const { data } = await supabase.from('profiles').select('phone_number').eq('id', sellerId).maybeSingle();
+      const phone = (data as any)?.phone_number;
+      const cleanPhone = phone?.replace(/\D/g, "");
+      if (!cleanPhone) {
+        toast.info("This seller hasn't added WhatsApp yet.");
+        return;
+      }
+      const intl = cleanPhone.startsWith("234") ? cleanPhone : cleanPhone.startsWith("0") ? "234" + cleanPhone.slice(1) : "234" + cleanPhone;
+      const msg = encodeURIComponent(`Hi! I'm reaching out regarding my order for "${itemTitle}" on BTHRIFTS.`);
+      window.open(`https://wa.me/${intl}?text=${msg}`, "_blank", "noopener");
+    } catch (e) {
+      toast.error("Could not load seller details.");
+    }
   };
 
   if (isLoading || !data) {
@@ -188,13 +205,23 @@ function OrderDetail() {
           <h2 className="font-display text-2xl tracking-tight text-foreground/95 mb-6">Items</h2>
           <ul className="space-y-4">
             {o.order_items.map((i) => (
-              <li key={i.id} className="flex gap-4 items-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors border border-transparent hover:border-border/50">
+              <li key={i.id} className="flex gap-4 items-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors border border-transparent hover:border-border/50 flex-wrap">
                 <img src={i.image_url} alt="" className="w-20 h-20 rounded-xl object-cover shadow-md" />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-[150px]">
                   <p className="font-bold text-foreground/90 line-clamp-1">{i.title}</p>
                   <p className="text-sm font-medium text-muted-foreground mt-1">Qty {i.quantity}</p>
                 </div>
-                <p className="font-bold text-lg tracking-tight text-foreground/95">{formatNaira(Number(i.unit_price) * i.quantity)}</p>
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-lg tracking-tight text-foreground/95">{formatNaira(Number(i.unit_price) * i.quantity)}</p>
+                  {isBuyer && (
+                    <button 
+                      onClick={() => chatSeller(i.seller_id, i.title)}
+                      className="mt-2 text-xs font-bold text-amber-500 hover:text-amber-400 inline-flex items-center gap-1.5 transition-colors"
+                    >
+                      <MessageCircle className="h-3 w-3" /> Chat seller
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

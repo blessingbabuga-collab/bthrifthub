@@ -112,17 +112,7 @@ function ProductPage() {
     else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
   };
 
-  const chatSeller = () => {
-    if (!p) return;
-    const phone = (seller as { phone?: string | null } | undefined)?.phone?.replace(/\D/g, "");
-    if (!phone) {
-      toast.info("This seller hasn't added WhatsApp yet. Try Save & checkout via cart.");
-      return;
-    }
-    const intl = phone.startsWith("234") ? phone : phone.startsWith("0") ? "234" + phone.slice(1) : "234" + phone;
-    const msg = encodeURIComponent(`Hi! I'm interested in your "${p.title}" (₦${Number(p.price).toLocaleString("en-US")}) on BTHRIFTS — ${window.location.href}`);
-    window.open(`https://wa.me/${intl}?text=${msg}`, "_blank", "noopener");
-  };
+
 
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
@@ -239,9 +229,6 @@ function ProductPage() {
                 </div>
               )}
 
-              <button onClick={chatSeller} className="mt-6 w-full h-12 rounded-full border-2 border-amber text-amber font-semibold inline-flex items-center justify-center gap-2 hover:bg-amber hover:text-accent-foreground transition-colors">
-                <MessageCircle className="h-4 w-4" /> Chat seller on WhatsApp
-              </button>
             </div>
           </div>
         )}

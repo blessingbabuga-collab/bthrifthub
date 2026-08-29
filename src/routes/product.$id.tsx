@@ -119,10 +119,10 @@ function ProductPage() {
       <SiteHeader />
       <div className="mx-auto max-w-5xl px-4 py-8">
         <BackButton fallback="/browse" />
-        {isLoading && <div className="h-96 animate-pulse bg-secondary rounded-3xl" />}
-        {error && <p className="text-destructive">Product not found.</p>}
+        {isLoading && <div className="h-96 animate-pulse bg-secondary rounded-3xl mt-6" />}
+        {error && <p className="text-destructive mt-6">Product not found.</p>}
         {p && (
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 mt-6">
             <div>
               <div 
                 className="rounded-3xl overflow-hidden border border-border bg-card cursor-zoom-in relative"

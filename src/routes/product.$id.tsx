@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, MouseEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -43,6 +44,23 @@ function ProductPage() {
     toast.success(p.shadow_banned ? 'Unbanned product' : 'Shadow banned product');
     refetch();
   };
+
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [isZooming, setIsZooming] = useState(false);
+  const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
+  
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomStyle({
+      transformOrigin: `${x}% ${y}%`,
+      transform: 'scale(2.5)'
+    });
+  };
+
+  const currentImage = activeImage || (p ? p.image_url : '');
+  const allImages = p ? [p.image_url, ...p.extra_images] : [];
 
   const requireAuth = () => {
     if (!user) { navigate({ to: "/auth" }); return false; }
@@ -93,13 +111,32 @@ function ProductPage() {
         {p && (
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <div className="rounded-3xl overflow-hidden border border-border bg-card">
-                <img src={p.image_url} alt={p.title} className="w-full aspect-square object-cover" />
+              <div 
+                className="rounded-3xl overflow-hidden border border-border bg-card cursor-zoom-in relative"
+                onMouseEnter={() => setIsZooming(true)}
+                onMouseLeave={() => {
+                  setIsZooming(false);
+                  setZoomStyle({});
+                }}
+                onMouseMove={handleMouseMove}
+              >
+                <img 
+                  src={currentImage} 
+                  alt={p.title} 
+                  className="w-full aspect-square object-cover transition-transform duration-200 ease-out"
+                  style={isZooming ? zoomStyle : {}} 
+                />
               </div>
-              {p.extra_images.length > 0 && (
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  {p.extra_images.slice(0, 4).map((u) => (
-                    <img key={u} src={u} alt="" className="aspect-square object-cover rounded-xl border border-border" />
+              {allImages.length > 1 && (
+                <div className="mt-3 grid grid-cols-5 gap-2">
+                  {allImages.slice(0, 5).map((u, i) => (
+                    <button 
+                      key={i}
+                      onClick={() => setActiveImage(u)}
+                      className={`rounded-xl border overflow-hidden aspect-square ${currentImage === u ? 'border-primary ring-2 ring-primary/20' : 'border-border opacity-70 hover:opacity-100'}`}
+                    >
+                      <img src={u} alt="" className="w-full h-full object-cover" />
+                    </button>
                   ))}
                 </div>
               )}

@@ -36,7 +36,7 @@ function SettingsPage() {
       if (data) {
         setFullName(data.full_name || "");
         setUsername(data.username || "");
-        setPhone(data.phone_number || "");
+        setPhone((data as any).phone_number || "");
       }
       return data;
     },
@@ -84,10 +84,11 @@ function SettingsPage() {
     
     try {
       // 1. Update Profile (Name & Username & Phone)
-      if (fullName !== profile?.full_name || username !== profile?.username || phone !== profile?.phone_number) {
+      if (fullName !== profile?.full_name || username !== profile?.username || phone !== (profile as any)?.phone_number) {
+        const updatePayload: any = { full_name: fullName, username, phone_number: phone };
         const { error: profileError } = await supabase
           .from("profiles")
-          .update({ full_name: fullName, username, phone_number: phone })
+          .update(updatePayload)
           .eq("id", user!.id);
           
         if (profileError) throw profileError;

@@ -25,7 +25,6 @@ function SettingsPage() {
   // Form states
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
   const { data: profile } = useQuery({
@@ -92,13 +91,7 @@ function SettingsPage() {
         if (profileError) throw profileError;
       }
 
-      // 2. Update Phone (Auth level)
-      if (phone.trim() !== "") {
-        const { error: phoneError } = await supabase.auth.updateUser({ phone });
-        if (phoneError) throw phoneError;
-      }
-
-      // 3. Update Password (Auth level)
+      // 2. Update Password (Auth level)
       if (newPassword.trim() !== "") {
         const { error: passError } = await supabase.auth.updateUser({ password: newPassword });
         if (passError) throw passError;
@@ -184,18 +177,7 @@ function SettingsPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-foreground mb-1.5 flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" /> Phone Number (Optional)
-            </label>
-            <input 
-              type="tel" 
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground"
-              placeholder="+234..."
-            />
-          </div>
+
 
           <div className="pt-2 border-t border-border">
             <label className="block text-sm font-bold text-foreground mb-1.5 flex items-center gap-2 mt-2">

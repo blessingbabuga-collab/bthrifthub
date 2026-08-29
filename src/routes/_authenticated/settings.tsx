@@ -25,6 +25,7 @@ function SettingsPage() {
   // Form states
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
   const { data: profile } = useQuery({
@@ -35,6 +36,7 @@ function SettingsPage() {
       if (data) {
         setFullName(data.full_name || "");
         setUsername(data.username || "");
+        setPhone(data.phone_number || "");
       }
       return data;
     },
@@ -81,11 +83,11 @@ function SettingsPage() {
     setLoading(true);
     
     try {
-      // 1. Update Profile (Name & Username)
-      if (fullName !== profile?.full_name || username !== profile?.username) {
+      // 1. Update Profile (Name & Username & Phone)
+      if (fullName !== profile?.full_name || username !== profile?.username || phone !== profile?.phone_number) {
         const { error: profileError } = await supabase
           .from("profiles")
-          .update({ full_name: fullName, username })
+          .update({ full_name: fullName, username, phone_number: phone })
           .eq("id", user!.id);
           
         if (profileError) throw profileError;
@@ -179,6 +181,19 @@ function SettingsPage() {
 
 
 
+          <div>
+            <label className="block text-sm font-bold text-foreground mb-1.5 flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" /> Phone Number (Optional)
+            </label>
+            <input 
+              type="tel" 
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground"
+              placeholder="+234..."
+            />
+          </div>
+
           <div className="pt-2 border-t border-border">
             <label className="block text-sm font-bold text-foreground mb-1.5 flex items-center gap-2 mt-2">
               <KeyRound className="h-4 w-4 text-muted-foreground" /> Change Password
@@ -186,6 +201,7 @@ function SettingsPage() {
             <p className="text-xs text-muted-foreground mb-2">Leave blank if you don't want to change it.</p>
             <input 
               type="password" 
+              autoComplete="new-password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground"

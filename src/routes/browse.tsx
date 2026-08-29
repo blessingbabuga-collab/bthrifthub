@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { BackButton } from "@/components/BackButton";
 import { ProductCard } from "@/components/ProductCard";
-import { categories } from "@/data/products";
+
 import { fetchProducts } from "@/lib/products";
 import { SlidersHorizontal } from "lucide-react";
 
@@ -19,6 +19,17 @@ export const Route = createFileRoute("/browse")({
 function Browse() {
   const { q } = Route.useSearch();
   const [cat, setCat] = useState<string>("All");
+  
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await (supabase as any).from('categories').select('*').order('name');
+      if (error) throw error;
+      return data as { id: string, name: string, emoji: string }[];
+    }
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["products", cat, q],
     queryFn: () => fetchProducts({ category: cat === "All" ? undefined : cat, search: q }),

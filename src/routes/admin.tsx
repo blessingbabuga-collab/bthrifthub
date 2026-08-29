@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
-import { ShieldCheck, Users, FileText, AlertTriangle, Activity, LogOut, Mail, FileEdit } from 'lucide-react'
+import { ShieldCheck, Users, FileText, AlertTriangle, Activity, LogOut, Mail, FileEdit, Tags } from 'lucide-react'
 import { toast } from 'sonner'
 import { AdminStats } from '@/components/admin/AdminStats'
 import { AdminVerifications } from '@/components/admin/AdminVerifications'
@@ -12,12 +12,13 @@ import { AdminDisputes } from '@/components/admin/AdminDisputes'
 import { AdminUsers } from '@/components/admin/AdminUsers'
 import { AdminEmailTemplates } from '@/components/admin/AdminEmailTemplates'
 import { AdminCMS } from '@/components/admin/AdminCMS'
+import { AdminCategories } from '@/components/admin/AdminCategories'
 
 export const Route = createFileRoute('/admin')({
   component: AdminDashboard,
 })
 
-type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'pages'
+type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'pages' | 'categories'
 
 function AdminDashboard() {
   const { session, loading: isAuthLoading } = useAuth()
@@ -67,6 +68,7 @@ function AdminDashboard() {
     { id: 'disputes', label: 'Disputes', icon: AlertTriangle },
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'pages', label: 'Pages', icon: FileEdit },
+    { id: 'categories', label: 'Categories', icon: Tags },
   ] as const
 
   return (
@@ -144,6 +146,7 @@ function AdminDashboard() {
           {activeTab === 'disputes' && <AdminDisputes />}
           {activeTab === 'emails' && <AdminEmailTemplates />}
           {activeTab === 'pages' && <AdminCMS />}
+          {activeTab === 'categories' && <AdminCategories />}
         </main>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/hooks/useAuth'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../integrations/supabase/client'
 import { toast } from 'sonner'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -19,7 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { categories } from '@/data/products'
+
 
 export const Route = createFileRoute('/_authenticated/edit/$id')({
   component: EditProductRoute,
@@ -40,6 +41,16 @@ function EditProductRoute() {
   const [images, setImages] = React.useState<{ url: string }[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [isFetching, setIsFetching] = React.useState(true);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from('categories').select('*').order('name');
+      if (error) throw error;
+      return data as { id: string, name: string, emoji: string }[];
+    }
+  });
+
 
   React.useEffect(() => {
     async function loadProduct() {

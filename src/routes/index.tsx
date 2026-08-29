@@ -26,19 +26,20 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const collections = [
-  { img: jacket, name: "Streetwear" },
-  { img: shoes, name: "Sneakers" },
-  { img: bag, name: "Bags" },
-  { img: flatlay, name: "Vintage" },
-  { img: shades, name: "Accessories" },
-  { img: model, name: "Designer" },
-];
 
 import { DUMMY_PRODUCTS } from "@/lib/dummy";
 
 function Index() {
   const { data: dbProducts } = useQuery({ queryKey: ["products", "trending"], queryFn: () => fetchProducts({ limit: 8 }) });
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.from('categories').select('*').order('name');
+      if (error) throw error;
+      return data;
+    }
+  });
   
   // Use DB products if available, otherwise fallback to our premium dummy data
   const products = dbProducts && dbProducts.length > 0 ? dbProducts : DUMMY_PRODUCTS;
@@ -50,11 +51,15 @@ function Index() {
       {/* PREMIUM STORIES / CATEGORIES */}
       <section className="pt-5 pb-3">
         <div className="flex gap-4 overflow-x-auto no-scrollbar px-5 pb-2 max-w-6xl mx-auto w-full sm:justify-center">
-          {collections.map(({ img, name }) => (
-            <Link key={name} to="/browse" className="flex flex-col items-center gap-2 shrink-0 group cursor-pointer">
+          {categories.map(({ image_url, name }: any) => (
+            <Link key={name} to="/browse" search={{ q: name }} className="flex flex-col items-center gap-2 shrink-0 group cursor-pointer">
               <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-amber-500 to-orange-500">
-                <div className="w-full h-full rounded-full border-2 border-background overflow-hidden">
-                  <img src={img} alt={name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="w-full h-full rounded-full border-2 border-background overflow-hidden bg-muted flex items-center justify-center text-muted-foreground">
+                  {image_url ? (
+                    <img src={image_url} alt={name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  ) : (
+                    <span className="text-xs">{name.charAt(0)}</span>
+                  )}
                 </div>
               </div>
               <span className="text-[11px] font-medium text-foreground/90 tracking-tight">{name}</span>

@@ -43,7 +43,7 @@ function SellPage() {
     queryFn: async () => {
       const { data, error } = await (supabase as any).from('categories').select('*').order('name');
       if (error) throw error;
-      return data as { id: string, name: string, emoji: string }[];
+      return data as { id: string, name: string, image_url: string }[];
     }
   });
   const [loading, setLoading] = useState(false);

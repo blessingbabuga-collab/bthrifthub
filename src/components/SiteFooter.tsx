@@ -1,4 +1,5 @@
 import { Logo } from "./Logo";
+import { Link } from "@tanstack/react-router";
 
 export function SiteFooter() {
   return (
@@ -19,7 +20,10 @@ export function SiteFooter() {
         <div>
           <h4 className="font-display text-amber tracking-widest text-sm">Company</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li>About</li><li>Sell on Bthrifs</li><li>Help Center</li><li>Trust & Safety</li>
+            <li><Link to="/page/$slug" params={{ slug: "about" }} className="hover:text-foreground transition-colors">About</Link></li>
+            <li><Link to="/page/$slug" params={{ slug: "sell-on-bthrifs" }} className="hover:text-foreground transition-colors">Sell on Bthrifs</Link></li>
+            <li><Link to="/page/$slug" params={{ slug: "help-center" }} className="hover:text-foreground transition-colors">Help Center</Link></li>
+            <li><Link to="/page/$slug" params={{ slug: "trust-and-safety" }} className="hover:text-foreground transition-colors">Trust &amp; Safety</Link></li>
           </ul>
         </div>
       </div>

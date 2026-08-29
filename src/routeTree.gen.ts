@@ -25,6 +25,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedStoreSetupRouteImport } from './routes/_authenticated/store-setup'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
+import { Route as PageSlugRouteImport } from './routes/page.$slug'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as WardrobeUsernameRouteImport } from './routes/wardrobe.$username'
 import { Route as AuthenticatedEditIdRouteImport } from './routes/_authenticated/edit.$id'
@@ -111,6 +112,11 @@ const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const PageSlugRoute = PageSlugRouteImport.update({
+  id: '/page/$slug',
+  path: '/page/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/store-setup': typeof AuthenticatedStoreSetupRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
+  '/page/$slug': typeof PageSlugRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
   '/edit/$id': typeof AuthenticatedEditIdRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/store-setup': typeof AuthenticatedStoreSetupRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
+  '/page/$slug': typeof PageSlugRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
   '/edit/$id': typeof AuthenticatedEditIdRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/_authenticated/store-setup': typeof AuthenticatedStoreSetupRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
+  '/page/$slug': typeof PageSlugRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
   '/_authenticated/edit/$id': typeof AuthenticatedEditIdRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/store-setup'
     | '/wallet'
     | '/wishlist'
+    | '/page/$slug'
     | '/product/$id'
     | '/wardrobe/$username'
     | '/edit/$id'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/store-setup'
     | '/wallet'
     | '/wishlist'
+    | '/page/$slug'
     | '/product/$id'
     | '/wardrobe/$username'
     | '/edit/$id'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store-setup'
     | '/_authenticated/wallet'
     | '/_authenticated/wishlist'
+    | '/page/$slug'
     | '/product/$id'
     | '/wardrobe/$username'
     | '/_authenticated/edit/$id'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  PageSlugRoute: typeof PageSlugRoute
   ProductIdRoute: typeof ProductIdRoute
   WardrobeUsernameRoute: typeof WardrobeUsernameRoute
 }
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWishlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/page/$slug': {
+      id: '/page/$slug'
+      path: '/page/$slug'
+      fullPath: '/page/$slug'
+      preLoaderRoute: typeof PageSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -511,6 +531,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  PageSlugRoute: PageSlugRoute,
   ProductIdRoute: ProductIdRoute,
   WardrobeUsernameRoute: WardrobeUsernameRoute,
 }

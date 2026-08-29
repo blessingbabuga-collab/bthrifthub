@@ -12,6 +12,29 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/product/$id")({
+  loader: async ({ params }) => {
+    try {
+      const product = await fetchProduct(params.id);
+      return { product };
+    } catch (e) {
+      return { product: null };
+    }
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData?.product) return { meta: [] };
+    const p = loaderData.product;
+    return {
+      meta: [
+        { title: p.title },
+        { property: 'og:title', content: p.title },
+        { property: 'og:description', content: p.description?.slice(0, 150) || '' },
+        { property: 'og:image', content: p.image_url },
+        { property: 'twitter:card', content: 'summary_large_image' },
+        { property: 'twitter:title', content: p.title },
+        { property: 'twitter:image', content: p.image_url },
+      ]
+    };
+  },
   component: ProductPage,
 });
 

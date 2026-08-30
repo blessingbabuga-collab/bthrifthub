@@ -26,7 +26,7 @@ function WalletRoute() {
         .eq('user_id', userId!)
         .single()
       if (error && error.code !== 'PGRST116') throw error
-      return data || { available_balance: 0, pending_balance: 0, withdrawn_balance: 0 }
+      return (data || { id: '', available_balance: 0, pending_balance: 0, withdrawn_balance: 0 }) as any
     }
   })
 

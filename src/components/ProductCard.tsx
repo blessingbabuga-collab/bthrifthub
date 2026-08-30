@@ -55,7 +55,8 @@ export function ProductCard({ p, isOwner }: { p: CardProduct, isOwner?: boolean 
         {isOwner && (
           <div className="mt-2 pt-2 flex items-center justify-between border-t border-border/50">
             <Link
-              to={`/edit/${p.id}`}
+              to="/edit/$id"
+              params={{ id: p.id }}
               onClick={(e) => e.stopPropagation()}
               className="w-full text-center text-[10px] uppercase font-bold tracking-widest text-primary hover:text-primary/80 transition-colors py-1"
             >

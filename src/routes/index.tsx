@@ -35,7 +35,7 @@ function Index() {
     queryKey: ['categories'],
     queryFn: async () => {
       const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.from('categories').select('*').order('name');
+      const { data, error } = await (supabase as any).from('categories').select('*').order('name');
       if (error) throw error;
       return data;
     }

@@ -38,7 +38,7 @@ function EditProductRoute() {
   const { user } = useAuth()
   
   const [form, setForm] = React.useState(initialForm);
-  const [images, setImages] = React.useState<{ url: string }[]>([]);
+  const [images, setImages] = React.useState<{ url: string, path: string }[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [isFetching, setIsFetching] = React.useState(true);
 
@@ -82,9 +82,9 @@ function EditProductRoute() {
       });
 
       const loadedImages = [];
-      if (data.image_url) loadedImages.push({ url: data.image_url });
-      if (data.extra_images) loadedImages.push(...data.extra_images.map(url => ({ url })));
-      setImages(loadedImages);
+      if (data.image_url) loadedImages.push({ url: data.image_url, path: '' });
+      if (data.extra_images) loadedImages.push(...data.extra_images.map(url => ({ url, path: '' })));
+      setImages(loadedImages as any);
       
       setIsFetching(false);
     }

@@ -62,7 +62,7 @@ function ChatRoute() {
         .from('messages')
         .insert({
           chat_id: chatId,
-          sender_id: userId,
+          sender_id: userId!,
           content
         })
       if (error) throw error

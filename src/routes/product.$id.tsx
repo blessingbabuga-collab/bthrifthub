@@ -192,7 +192,7 @@ function ProductPage() {
 
               <div className="mt-7 grid grid-cols-2 gap-3">
                 {user?.id === p.seller_id ? (
-                  <Link to={`/edit/${p.id}`} className="h-12 col-span-2 rounded-full border-2 border-primary text-primary font-bold inline-flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all">
+                  <Link to="/edit/$id" params={{ id: p.id }} className="h-12 col-span-2 rounded-full border-2 border-primary text-primary font-bold inline-flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all">
                     Edit listing
                   </Link>
                 ) : (

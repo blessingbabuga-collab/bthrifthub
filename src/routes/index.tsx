@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
 });
 
 
-import { DUMMY_PRODUCTS } from "@/lib/dummy";
+
 
 function Index() {
   const { data: dbProducts } = useQuery({ queryKey: ["products", "trending"], queryFn: () => fetchProducts({ limit: 8 }) });
@@ -41,8 +41,8 @@ function Index() {
     }
   });
   
-  // Use DB products if available, otherwise fallback to our premium dummy data
-  const products = dbProducts && dbProducts.length > 0 ? dbProducts : DUMMY_PRODUCTS;
+  // Only use DB products, no dummy fallback
+  const products = dbProducts || [];
 
   return (
     <div className="min-h-screen pb-24 sm:pb-0 bg-background">

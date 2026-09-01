@@ -37,24 +37,9 @@ function WardrobeComponent() {
         .eq('username', username)
         .maybeSingle()
       
-      if (data) return data
-      
-      const { DUMMY_PRODUCTS } = await import('@/lib/dummy')
-      const dummySeller = DUMMY_PRODUCTS.find(p => p.seller.username === username)?.seller
-      if (dummySeller) {
-        return {
-          id: dummySeller.id,
-          username: dummySeller.username,
-          full_name: dummySeller.full_name,
-          avatar_url: dummySeller.avatar_url,
-          bio: "Welcome to my premium curated thrift wardrobe!",
-          is_verified: true,
-          is_wardrobe_private: false,
-          is_wardrobe_value_visible: true,
-          cover_image: null
-        }
-      }
-      throw new Error("Not found")
+      if (error) throw error
+      if (!data) throw new Error("Not found")
+      return data
     }
   })
 
@@ -69,10 +54,8 @@ function WardrobeComponent() {
         .select('*')
         .eq('seller_id', profile.id)
         
-      if (!error && data && data.length > 0) return data;
-      
-      const { DUMMY_PRODUCTS } = await import('@/lib/dummy')
-      return DUMMY_PRODUCTS.filter(p => p.seller_id === profile.id)
+      if (error) throw error
+      return data || []
     }
   })
 

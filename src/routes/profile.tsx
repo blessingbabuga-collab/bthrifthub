@@ -66,7 +66,11 @@ function ProfileDashboard() {
             <h2 className="text-xl font-bold text-foreground">
               {profile?.full_name || "Thrifter"}
             </h2>
-            <p className="text-sm text-muted-foreground">@{profile?.username || "username"}</p>
+            <p className="text-sm text-muted-foreground mb-2">@{profile?.username || "username"}</p>
+            <Link to="/followers" className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:opacity-80 bg-secondary px-3 py-1 rounded-full">
+              <span>{profile?.followers_count || 0}</span>
+              <span className="text-muted-foreground font-normal">Followers</span>
+            </Link>
           </div>
         </div>
 

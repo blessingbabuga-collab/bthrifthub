@@ -19,6 +19,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedFollowersRouteImport } from './routes/_authenticated/followers'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -80,6 +81,11 @@ const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFollowersRoute = AuthenticatedFollowersRouteImport.update({
+  id: '/followers',
+  path: '/followers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/followers': typeof AuthenticatedFollowersRoute
   '/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/sell': typeof AuthenticatedSellRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/followers': typeof AuthenticatedFollowersRoute
   '/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/sell': typeof AuthenticatedSellRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/followers': typeof AuthenticatedFollowersRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRouteWithChildren
   '/_authenticated/sell': typeof AuthenticatedSellRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/cart'
     | '/checkout'
+    | '/followers'
     | '/inbox'
     | '/sell'
     | '/settings'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/cart'
     | '/checkout'
+    | '/followers'
     | '/inbox'
     | '/sell'
     | '/settings'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/cart'
     | '/_authenticated/checkout'
+    | '/_authenticated/followers'
     | '/_authenticated/inbox'
     | '/_authenticated/sell'
     | '/_authenticated/settings'
@@ -384,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/followers': {
+      id: '/_authenticated/followers'
+      path: '/followers'
+      fullPath: '/followers'
+      preLoaderRoute: typeof AuthenticatedFollowersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inbox': {
@@ -494,6 +513,7 @@ const AuthenticatedInboxRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedFollowersRoute: typeof AuthenticatedFollowersRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRouteWithChildren
   AuthenticatedSellRoute: typeof AuthenticatedSellRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -508,6 +528,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedFollowersRoute: AuthenticatedFollowersRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRouteWithChildren,
   AuthenticatedSellRoute: AuthenticatedSellRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,

@@ -138,14 +138,14 @@ function OrderDetail() {
         </div>
 
         {/* Tracking timeline */}
-        <section className="mt-10 bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+        <section className="mt-10 bg-card border border-border rounded-3xl shadow-sm p-8">
           <h2 className="font-display text-2xl tracking-tight text-foreground/95 mb-8">Delivery tracking</h2>
           {cancelled ? (
-            <div className="flex items-center gap-4 text-red-400 bg-red-500/5 p-6 rounded-2xl border border-red-500/10">
+            <div className="flex items-center gap-4 text-red-600 bg-red-500/5 p-6 rounded-2xl border border-red-500/10">
               <XCircle className="h-8 w-8" />
               <div>
                 <p className="font-bold text-lg tracking-tight">Order cancelled</p>
-                <p className="text-sm text-red-400/70 font-medium">This order was cancelled and won't be delivered.</p>
+                <p className="text-sm text-red-600/70 font-medium">This order was cancelled and won't be delivered.</p>
               </div>
             </div>
           ) : (
@@ -157,7 +157,7 @@ function OrderDetail() {
                 const event = o.order_status_events.find((e) => e.status === s.key);
                 return (
                   <li key={s.key} className="flex gap-4">
-                    <div className={`shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-all ${done ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "border-border bg-black/20 text-foreground/30"}`}>
+                    <div className={`shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-all ${done ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "border-border bg-secondary text-muted-foreground/50"}`}>
                       {done ? <Icon className="h-5 w-5" /> : <Circle className="h-4 w-4" />}
                     </div>
                     <div className="flex-1 pb-2">
@@ -173,7 +173,7 @@ function OrderDetail() {
           {isSeller && o.status === "paid" && (
             <button
               onClick={markShipped}
-              className="mt-8 w-full h-12 rounded-full bg-indigo-500 hover:bg-indigo-400 active:scale-95 text-foreground font-bold transition-all shadow-[0_4px_20px_-5px_rgba(99,102,241,0.4)]"
+              className="mt-8 w-full h-12 rounded-full bg-indigo-500 hover:bg-indigo-400 active:scale-95 text-white font-bold transition-all shadow-[0_4px_20px_-5px_rgba(99,102,241,0.4)]"
             >
               Mark as Shipped
             </button>
@@ -182,30 +182,30 @@ function OrderDetail() {
           {isBuyer && ["shipped", "out_for_delivery"].includes(o.status) && (
             <button
               onClick={confirmDelivery}
-              className="mt-8 w-full h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-foreground font-bold transition-all shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+              className="mt-8 w-full h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold transition-all shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
             >
               Confirm Delivery & Release Funds
             </button>
           )}
 
           {isBuyer && !cancelled && o.status !== "delivered" && (
-            <button onClick={cancel} className="mt-4 w-full h-12 text-sm font-bold rounded-full border border-red-500/20 text-red-400 hover:bg-red-500/10 active:scale-95 transition-all">
+            <button onClick={cancel} className="mt-4 w-full h-12 text-sm font-bold rounded-full border border-red-500/20 text-red-600 hover:bg-red-500/10 active:scale-95 transition-all">
               Cancel order
             </button>
           )}
           {o.status === "delivered" && (
-            <div className="mt-8 p-6 rounded-[20px] bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 font-bold text-center">
+            <div className="mt-8 p-6 rounded-[20px] bg-emerald-500/5 border border-emerald-500/20 text-emerald-600 font-bold text-center">
               ✓ Delivered — thanks for shopping thrift!
             </div>
           )}
         </section>
 
         {/* Items */}
-        <section className="mt-8 bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+        <section className="mt-8 bg-card border border-border rounded-3xl shadow-sm p-8">
           <h2 className="font-display text-2xl tracking-tight text-foreground/95 mb-6">Items</h2>
           <ul className="space-y-4">
             {o.order_items.map((i) => (
-              <li key={i.id} className="flex gap-4 items-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors border border-transparent hover:border-border/50 flex-wrap">
+              <li key={i.id} className="flex gap-4 items-center p-4 rounded-2xl hover:bg-secondary/50 transition-colors border border-transparent hover:border-border flex-wrap">
                 <img src={i.image_url} alt="" className="w-20 h-20 rounded-xl object-cover shadow-md" />
                 <div className="flex-1 min-w-[150px]">
                   <p className="font-bold text-foreground/90 line-clamp-1">{i.title}</p>
@@ -225,10 +225,10 @@ function OrderDetail() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 pt-6 border-t border-border/50 space-y-3 text-base font-medium">
+          <div className="mt-6 pt-6 border-t border-border space-y-3 text-base font-medium">
             <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="text-foreground/90">{formatNaira(Number(o.subtotal))}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span className="text-foreground/90">{formatNaira(Number(o.shipping_fee))}</span></div>
-            <div className="flex justify-between pt-4 mt-2 border-t border-border/50 items-baseline">
+            <div className="flex justify-between pt-4 mt-2 border-t border-border items-baseline">
               <span className="text-muted-foreground font-bold">Total</span>
               <span className="font-display text-3xl tracking-tight text-amber-500">{formatNaira(Number(o.total))}</span>
             </div>
@@ -237,17 +237,17 @@ function OrderDetail() {
 
         {/* Address + payment */}
         <section className="mt-8 grid sm:grid-cols-2 gap-6">
-          <div className="bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+          <div className="bg-card border border-border rounded-3xl shadow-sm p-8">
             <h3 className="font-display text-2xl tracking-tight text-foreground/95">Ship to</h3>
             <div className="mt-4 text-sm font-medium text-muted-foreground space-y-1.5">
               <p className="font-bold text-foreground/95 text-base">{o.full_name}</p>
               <p>{o.address_line}</p>
               <p>{o.city}, {o.state}</p>
               <p className="text-muted-foreground/80 pt-2">{o.phone}</p>
-              {o.notes && <p className="text-sm text-muted-foreground/80 mt-3 pt-3 border-t border-border/50">Note: {o.notes}</p>}
+              {o.notes && <p className="text-sm text-muted-foreground/80 mt-3 pt-3 border-t border-border">Note: {o.notes}</p>}
             </div>
           </div>
-          <div className="bg-[#15151a] shadow-2xl border border-border/50 rounded-[24px] p-8">
+          <div className="bg-card border border-border rounded-3xl shadow-sm p-8">
             <h3 className="font-display text-2xl tracking-tight text-foreground/95">Payment</h3>
             <div className="mt-4 text-sm font-medium text-muted-foreground space-y-1.5">
               <p className="font-bold text-foreground/95 text-base capitalize">{o.payment_method === "cod" ? "Cash on delivery" : o.payment_method}</p>

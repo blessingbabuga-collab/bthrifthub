@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Lock, Eye, EyeOff } from 'lucide-react'
@@ -31,8 +31,8 @@ function WardrobeComponent() {
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile', username],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
+      const { data, error } = await (supabase as any)
+        .from('public_profiles')
         .select('*')
         .eq('username', username)
         .maybeSingle()
@@ -73,6 +73,44 @@ function WardrobeComponent() {
       
       const { DUMMY_PRODUCTS } = await import('@/lib/dummy')
       return DUMMY_PRODUCTS.filter(p => p.seller_id === profile.id)
+    }
+  })
+
+  const queryClient = useQueryClient()
+  const { data: isFollowing } = useQuery({
+    queryKey: ['isFollowing', profile?.id, currentUserId],
+    enabled: !!profile?.id && !!currentUserId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('followers')
+        .select('*')
+        .eq('follower_id', currentUserId)
+        .eq('following_id', profile!.id)
+        .maybeSingle()
+      return !!data
+    }
+  })
+
+  const toggleFollow = useMutation({
+    mutationFn: async () => {
+      if (!currentUserId) throw new Error("Must be logged in to follow")
+      if (isFollowing) {
+        await supabase
+          .from('followers')
+          .delete()
+          .eq('follower_id', currentUserId)
+          .eq('following_id', profile!.id)
+      } else {
+        await supabase
+          .from('followers')
+          .insert({
+            follower_id: currentUserId,
+            following_id: profile!.id
+          })
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['isFollowing', profile?.id, currentUserId] })
     }
   })
 
@@ -142,8 +180,22 @@ function WardrobeComponent() {
           )}
 
           {!isOwner && (
-            <button className="mt-6 bg-foreground text-background hover:opacity-90 h-10 px-8 rounded-full font-bold transition-opacity shadow-sm">
-              Follow
+            <button 
+              onClick={() => {
+                if (!currentUserId) {
+                  alert("Please sign in to follow users")
+                  return
+                }
+                toggleFollow.mutate()
+              }}
+              disabled={toggleFollow.isPending}
+              className={`mt-6 h-10 px-8 rounded-full font-bold transition-opacity shadow-sm ${
+                isFollowing 
+                  ? "bg-secondary text-foreground border border-border hover:bg-secondary/80" 
+                  : "bg-foreground text-background hover:opacity-90"
+              }`}
+            >
+              {toggleFollow.isPending ? "Updating..." : isFollowing ? "Following" : "Follow"}
             </button>
           )}
         </div>

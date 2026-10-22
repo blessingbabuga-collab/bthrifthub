@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
-import { Send, ArrowLeft } from 'lucide-react'
+import { Send, ArrowLeft, Lock, ShieldAlert } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { SiteHeader } from '@/components/SiteHeader'
 import { MobileNav } from '@/components/MobileNav'
@@ -35,6 +35,28 @@ function ChatRoute() {
         .single()
       if (error) throw error
       return data
+    }
+  })
+
+  // Verify that an active confirmed/paid order exists between buyer and seller
+  const { data: isPaidOrderConfirmed, isLoading: isCheckingPayment } = useQuery({
+    queryKey: ['chat-payment-verification', chat?.buyer_id, chat?.seller_id, chat?.product_id],
+    enabled: !!chat,
+    queryFn: async () => {
+      if (!chat) return false
+      const { data, error } = await supabase
+        .from('orders')
+        .select('id, status, escrow_status, order_items!inner(product_id, seller_id)')
+        .eq('buyer_id', chat.buyer_id)
+        .eq('order_items.seller_id', chat.seller_id)
+        .in('status', ['paid', 'shipped', 'out_for_delivery', 'delivered'])
+        .limit(1)
+
+      if (error) {
+        console.error("Error verifying payment for chat:", error)
+        return false
+      }
+      return Boolean(data && data.length > 0)
     }
   })
 
@@ -132,25 +154,50 @@ function ChatRoute() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
+      {/* Input Area or Payment Lock Banner */}
       <div className="bg-card border-t border-border p-3">
-        <form onSubmit={handleSendMessage} className="container max-w-4xl mx-auto flex gap-2">
-          <input 
-            type="text" 
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..." 
-            className="flex-grow bg-secondary/50 border border-border text-foreground rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
-            disabled={sendMessageMutation.isPending}
-          />
-          <button 
-            type="submit" 
-            disabled={sendMessageMutation.isPending || !newMessage.trim()}
-            className="bg-primary text-primary-foreground p-3 rounded-full hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center w-12 h-12 shadow-glow transition-all active:scale-95"
-          >
-            <Send size={18} />
-          </button>
-        </form>
+        {isCheckingPayment ? (
+          <div className="text-center py-2 text-xs text-muted-foreground animate-pulse">
+            Verifying payment status...
+          </div>
+        ) : !isPaidOrderConfirmed ? (
+          <div className="container max-w-4xl mx-auto p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
+            <div className="flex items-center justify-center gap-2 text-amber-500 font-bold text-sm mb-1">
+              <Lock className="h-4 w-4" />
+              <span>Direct Chat Locked Until Payment is Confirmed</span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-md mx-auto mb-3">
+              To prevent scams and off-platform fraudulent deals, direct communication unlocks immediately once the buyer pays through BTHRIFTS Escrow.
+            </p>
+            {isBuyer && chat.product && (
+              <Link 
+                to="/product/$id" 
+                params={{ id: chat.product.id }}
+                className="inline-flex items-center justify-center px-5 py-2 text-xs font-bold rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-colors shadow-sm"
+              >
+                Proceed to Checkout
+              </Link>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleSendMessage} className="container max-w-4xl mx-auto flex gap-2">
+            <input 
+              type="text" 
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message to coordinate delivery..." 
+              className="flex-grow bg-secondary/50 border border-border text-foreground rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+              disabled={sendMessageMutation.isPending}
+            />
+            <button 
+              type="submit" 
+              disabled={sendMessageMutation.isPending || !newMessage.trim()}
+              className="bg-primary text-primary-foreground p-3 rounded-full hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center w-12 h-12 shadow-glow transition-all active:scale-95"
+            >
+              <Send size={18} />
+            </button>
+          </form>
+        )}
       </div>
 
       <MobileNav />

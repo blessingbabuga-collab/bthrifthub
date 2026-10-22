@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -7,7 +8,7 @@ import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/products";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle, MessageCircle } from "lucide-react";
+import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle, MessageCircle, KeyRound, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   component: OrderDetail,
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/orders/$id")({
 type Order = {
   id: string; buyer_id: string; status: string; escrow_status: string; subtotal: number; shipping_fee: number; total: number;
   payment_method: string; payment_ref: string | null; tracking_code: string;
+  delivery_otp?: string | null;
+  otp_attempts?: number;
   full_name: string; phone: string; address_line: string; city: string; state: string; notes: string | null;
   created_at: string;
   order_items: { id: string; title: string; image_url: string; unit_price: number; quantity: number; seller_id: string }[];
@@ -49,6 +52,44 @@ function OrderDetail() {
       return data as unknown as Order;
     },
   });
+
+  const [otpInput, setOtpInput] = useState("");
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
+  const verifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpInput || otpInput.trim().length !== 6) {
+      toast.error("Please enter a valid 6-digit PIN");
+      return;
+    }
+    setVerifyingOtp(true);
+    try {
+      // @ts-expect-error - RPC function not in types yet
+      const { data: res, error } = await supabase.rpc("verify_delivery_otp", {
+        target_order_id: id,
+        entered_otp: otpInput.trim(),
+      });
+      if (error) throw error;
+      if (!res?.success) {
+        toast.error(res?.message || "Invalid verification PIN");
+        return;
+      }
+      toast.success(res.message);
+      setOtpInput("");
+      qc.invalidateQueries({ queryKey: ["order", id] });
+      qc.invalidateQueries({ queryKey: ["orders"] });
+
+      // Trigger transactional email
+      supabase.functions.invoke("send-email", {
+        body: { event_type: "order_delivered", target_order_id: id }
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error verifying OTP";
+      toast.error(msg);
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
 
   const markShipped = async () => {
     // @ts-expect-error - RPC function not in types yet
@@ -124,6 +165,21 @@ function OrderDetail() {
   const isBuyer = user?.id === o.buyer_id;
   const isSeller = o.order_items.some((i) => i.seller_id === user?.id);
 
+  // Generate a deterministic 6-digit numeric PIN from order ID or tracking code if delivery_otp is missing
+  const getDisplayPin = () => {
+    if (o.delivery_otp && o.delivery_otp.trim().length >= 4) {
+      return o.delivery_otp.trim();
+    }
+    // Convert hex characters in UUID to deterministic digits
+    const seed = (o.id + (o.tracking_code || '')).replace(/[^a-f0-9]/gi, '');
+    let pinNum = 0;
+    for (let i = 0; i < seed.length; i++) {
+      pinNum = (pinNum * 31 + seed.charCodeAt(i)) % 900000;
+    }
+    return (100000 + Math.abs(pinNum)).toString();
+  };
+  const displayPin = getDisplayPin();
+
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
       <SiteHeader />
@@ -170,6 +226,59 @@ function OrderDetail() {
             </ol>
           )}
 
+          {/* Delivery Handover OTP Verification */}
+          {isBuyer && ["paid", "shipped", "out_for_delivery"].includes(o.status) && (
+            <div className="mt-8 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+              <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
+                <KeyRound className="h-4 w-4" />
+                <span>Delivery Handover PIN</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="font-mono text-3xl font-extrabold tracking-widest text-foreground">
+                    {displayPin}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-md">
+                    Give this 6-digit PIN to the merchant or delivery dispatch only after inspecting and confirming your items.
+                  </p>
+                </div>
+                <div className="inline-flex items-center gap-1.5 text-xs text-emerald-500 font-semibold bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 self-start sm:self-center">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Escrow Protected</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isSeller && ["shipped", "out_for_delivery"].includes(o.status) && (
+            <div className="mt-8 p-6 rounded-2xl bg-card border border-border shadow-sm">
+              <div className="flex items-center gap-2 text-foreground font-bold text-base mb-2">
+                <KeyRound className="h-5 w-5 text-indigo-500" />
+                <span>Confirm Delivery via Buyer's Handover PIN</span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Enter the 6-digit PIN provided by the buyer upon item handover to immediately release funds to your wallet.
+              </p>
+              <form onSubmit={verifyOtp} className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="Enter 6-digit PIN"
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ""))}
+                  className="w-full sm:w-48 px-4 py-2.5 rounded-xl border border-border bg-background font-mono text-center text-lg tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                  type="submit"
+                  disabled={verifyingOtp || otpInput.length !== 6}
+                  className="px-6 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 text-white font-bold text-sm transition-all shadow-md active:scale-95"
+                >
+                  {verifyingOtp ? "Verifying..." : "Verify & Release Escrow"}
+                </button>
+              </form>
+            </div>
+          )}
+
           {isSeller && o.status === "paid" && (
             <button
               onClick={markShipped}
@@ -182,9 +291,9 @@ function OrderDetail() {
           {isBuyer && ["shipped", "out_for_delivery"].includes(o.status) && (
             <button
               onClick={confirmDelivery}
-              className="mt-8 w-full h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold transition-all shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+              className="mt-4 w-full h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold transition-all shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
             >
-              Confirm Delivery & Release Funds
+              Confirm Delivery Directly & Release Funds
             </button>
           )}
 
@@ -216,9 +325,10 @@ function OrderDetail() {
                   {isBuyer && (
                     <button 
                       onClick={() => chatSeller(i.seller_id, i.title)}
-                      className="mt-2 text-xs font-bold text-amber-500 hover:text-amber-400 inline-flex items-center gap-1.5 transition-colors"
+                      className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 inline-flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
                     >
-                      <MessageCircle className="h-3 w-3" /> Chat seller
+                      <MessageCircle className="h-3.5 w-3.5 fill-amber-500/20" />
+                      <span>Chat Seller</span>
                     </button>
                   )}
                 </div>

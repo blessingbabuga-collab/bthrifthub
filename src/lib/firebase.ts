@@ -13,10 +13,14 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 
+// Graceful fallback if Firebase is not configured in .env
+let warnedOnce = false;
 export const setupPushNotifications = async (userId: string) => {
-  // Graceful fallback if Firebase is not configured in .env
   if (!firebaseConfig.projectId) {
-    console.warn('Firebase push notifications skipped: Missing VITE_FIREBASE_PROJECT_ID in environment variables.');
+    if (!warnedOnce) {
+      console.info('[Firebase] Push notifications optional setup skipped (VITE_FIREBASE_PROJECT_ID not set).');
+      warnedOnce = true;
+    }
     return;
   }
 

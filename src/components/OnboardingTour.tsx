@@ -1,11 +1,22 @@
 import { useEffect } from 'react';
+import { useLocation } from '@tanstack/react-router';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
 export function OnboardingTour() {
+  const location = useLocation();
+
   useEffect(() => {
+    // Only run tour in client browser and on the main marketplace pages, not on /auth
+    if (typeof window === 'undefined') return;
+    if (location.pathname.startsWith('/auth')) return;
+
     const hasSeenTour = localStorage.getItem('has_seen_tour');
     if (hasSeenTour) return;
+
+    // Verify elements exist before driving
+    const browseEl = document.querySelector('#tour-browse');
+    if (!browseEl) return;
 
     const tour = driver({
       showProgress: true,
@@ -44,13 +55,15 @@ export function OnboardingTour() {
       },
     });
 
-    // small delay to let UI render
     const timer = setTimeout(() => {
-      tour.drive();
+      // Re-check target exists
+      if (document.querySelector('#tour-browse')) {
+        tour.drive();
+      }
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.pathname]);
 
   return null;
 }

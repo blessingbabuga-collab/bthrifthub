@@ -64,17 +64,17 @@ function OrderDetail() {
     }
     setVerifyingOtp(true);
     try {
-      // @ts-expect-error - RPC function not in types yet
-      const { data: res, error } = await supabase.rpc("verify_delivery_otp", {
+      const { data, error } = await supabase.rpc("verify_delivery_otp", {
         target_order_id: id,
         entered_otp: otpInput.trim(),
       });
       if (error) throw error;
+      const res = data as { success?: boolean; message?: string } | null;
       if (!res?.success) {
         toast.error(res?.message || "Invalid verification PIN");
         return;
       }
-      toast.success(res.message);
+      toast.success(res.message || "Order verified!");
       setOtpInput("");
       qc.invalidateQueries({ queryKey: ["order", id] });
       qc.invalidateQueries({ queryKey: ["orders"] });
@@ -107,7 +107,6 @@ function OrderDetail() {
 
   const confirmDelivery = async () => {
     if (!confirm("Are you sure you have received this order? Escrow funds will be released to the seller.")) return;
-    // @ts-expect-error - RPC function not in types yet
     const { error } = await supabase.rpc("confirm_delivery", { target_order_id: id });
     if (error) { toast.error(error.message); return; }
     toast.success("Delivery confirmed. Escrow funds released.");

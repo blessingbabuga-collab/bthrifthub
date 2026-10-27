@@ -178,10 +178,10 @@ function ProductPage() {
                 {p.description || "No description provided."}
               </p>
 
-              {seller && (
+              {seller && seller.username && (
                 <Link to="/wardrobe/$username" params={{ username: seller.username }} className="mt-6 flex items-center gap-3 p-4 rounded-2xl border border-border hover:bg-secondary transition-colors">
                   <div className="w-12 h-12 rounded-full bg-amber/20 overflow-hidden flex items-center justify-center text-amber font-bold text-lg">
-                    {seller.avatar_url ? <img src={seller.avatar_url} alt="" className="w-full h-full object-cover" /> : seller.username?.charAt(0).toUpperCase()}
+                    {seller.avatar_url ? <img src={seller.avatar_url} alt="" className="w-full h-full object-cover" /> : seller.username.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-foreground">@{seller.username}</p>

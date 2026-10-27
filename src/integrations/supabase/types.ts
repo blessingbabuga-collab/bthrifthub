@@ -71,6 +71,39 @@ export type Database = {
           },
         ]
       }
+      bank_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_code: string
+          bank_name: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_code: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_code?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chats: {
         Row: {
           buyer_id: string
@@ -383,10 +416,12 @@ export type Database = {
           buyer_id: string
           city: string
           created_at: string
+          delivery_otp: string | null
           escrow_status: string | null
           full_name: string
           id: string
           notes: string | null
+          otp_attempts: number | null
           payment_method: string
           payment_ref: string | null
           phone: string
@@ -403,10 +438,12 @@ export type Database = {
           buyer_id: string
           city: string
           created_at?: string
+          delivery_otp?: string | null
           escrow_status?: string | null
           full_name: string
           id?: string
           notes?: string | null
+          otp_attempts?: number | null
           payment_method?: string
           payment_ref?: string | null
           phone: string
@@ -423,10 +460,12 @@ export type Database = {
           buyer_id?: string
           city?: string
           created_at?: string
+          delivery_otp?: string | null
           escrow_status?: string | null
           full_name?: string
           id?: string
           notes?: string | null
+          otp_attempts?: number | null
           payment_method?: string
           payment_ref?: string | null
           phone?: string
@@ -437,6 +476,30 @@ export type Database = {
           total?: number
           tracking_code?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          created_at?: string
+          description: string | null
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          key?: string
+          updated_at?: string | null
+          value?: string
         }
         Relationships: []
       }
@@ -827,7 +890,23 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      verify_delivery_otp: {
+        Args: {
+          target_order_id: string
+          entered_otp: string
+        }
+        Returns: Json
+      }
+      confirm_delivery: {
+        Args: {
+          target_order_id: string
+        }
+        Returns: Json
+      }
+      get_platform_commission_percent: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

@@ -8,6 +8,8 @@ import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/products";
 import { Package, ChevronRight } from "lucide-react";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { openOrderWhatsAppChat } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/_authenticated/orders/")({
   component: OrdersPage,
@@ -15,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/orders/")({
 });
 
 type Order = {
-  id: string; buyer_id: string; status: string; total: number; created_at: string; tracking_code: string;
+  id: string; buyer_id: string; status: string; total: number; created_at: string; tracking_code: string; phone?: string;
   order_items: { title: string; image_url: string; quantity: number; seller_id: string }[];
 };
 
@@ -36,7 +38,7 @@ function OrdersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, buyer_id, status, total, created_at, tracking_code, order_items(title, image_url, quantity, seller_id)")
+        .select("id, buyer_id, status, total, created_at, tracking_code, phone, order_items(title, image_url, quantity, seller_id)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as unknown as Order[];
@@ -71,35 +73,90 @@ function OrdersPage() {
         )}
         {currentData.length > 0 && (
           <ul className="mt-8 space-y-4">
-            {currentData.map((o) => (
-              <li key={o.id}>
-                <Link to="/orders/$id" params={{ id: o.id }} className="group block bg-card shadow-sm border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 rounded-[20px] p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
-                        <span className="text-xs font-mono text-muted-foreground">#{o.tracking_code}</span>
-                        <span className={`text-[10px] uppercase tracking-[0.1em] font-bold px-2.5 py-1 rounded-full ${STATUS_BADGE[o.status] ?? "bg-secondary text-foreground"}`}>{o.status.replace(/_/g, " ")}</span>
+            {currentData.map((o) => {
+              const isPaymentConfirmed = ["paid", "shipped", "out_for_delivery", "delivered"].includes(o.status);
+              const isBuyer = o.buyer_id === user?.id;
+
+              return (
+                <li key={o.id} className="relative group block bg-card shadow-sm border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 rounded-[20px] p-5">
+                  <Link to="/orders/$id" params={{ id: o.id }} className="block">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
+                          <span className="text-xs font-mono text-muted-foreground">#{o.tracking_code}</span>
+                          <span className={`text-[10px] uppercase tracking-[0.1em] font-bold px-2.5 py-1 rounded-full ${STATUS_BADGE[o.status] ?? "bg-secondary text-foreground"}`}>{o.status.replace(/_/g, " ")}</span>
+                        </div>
+                        <p className="mt-2 text-sm text-foreground font-medium line-clamp-1 group-hover:text-primary transition-colors">
+                          {o.order_items.map((i) => `${i.title} × ${i.quantity}`).join(", ")}
+                        </p>
+                        <p className="mt-1.5 text-[11px] text-muted-foreground font-medium">{new Date(o.created_at).toLocaleDateString()}</p>
                       </div>
-                      <p className="mt-2 text-sm text-foreground font-medium line-clamp-1 group-hover:text-primary transition-colors">
-                        {o.order_items.map((i) => `${i.title} × ${i.quantity}`).join(", ")}
-                      </p>
-                      <p className="mt-1.5 text-[11px] text-muted-foreground font-medium">{new Date(o.created_at).toLocaleDateString()}</p>
+                      <div className="flex items-center gap-4 shrink-0">
+                        <div className="flex -space-x-3">
+                          {o.order_items.slice(0, 3).map((i, idx) => (
+                            <img key={idx} src={i.image_url} alt="" className="w-12 h-12 rounded-xl object-cover border-2 border-background shadow-sm" />
+                          ))}
+                        </div>
+                        <div className="text-right ml-2">
+                          <p className="font-display tracking-tight text-xl text-foreground">{formatNaira(Number(o.total))}</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 shrink-0">
-                      <div className="flex -space-x-3">
-                        {o.order_items.slice(0, 3).map((i, idx) => (
-                          <img key={idx} src={i.image_url} alt="" className="w-12 h-12 rounded-xl object-cover border-2 border-background shadow-sm" />
-                        ))}
+                  </Link>
+
+                  {/* Confirmed Payment WhatsApp Chat Quick Action */}
+                  {isPaymentConfirmed && (
+                    <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-xs text-muted-foreground font-medium">
+                        Payment confirmed
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {isBuyer ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              openOrderWhatsAppChat({
+                                orderId: o.id,
+                                orderTrackingCode: o.tracking_code,
+                                itemTitle: o.order_items[0]?.title,
+                                targetUserId: o.order_items[0]?.seller_id,
+                                defaultRole: "seller",
+                              });
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold shadow-sm transition-all active:scale-95"
+                          >
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
+                            <span>Chat Merchant</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              openOrderWhatsAppChat({
+                                orderId: o.id,
+                                orderTrackingCode: o.tracking_code,
+                                itemTitle: o.order_items[0]?.title,
+                                defaultRole: "buyer",
+                                fallbackPhone: o.phone,
+                              });
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold shadow-sm transition-all active:scale-95"
+                          >
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
+                            <span>Chat Buyer</span>
+                          </button>
+                        )}
                       </div>
-                      <div className="text-right ml-2">
-                        <p className="font-display tracking-tight text-xl text-foreground">{formatNaira(Number(o.total))}</p>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                     </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

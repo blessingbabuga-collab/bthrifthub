@@ -8,7 +8,9 @@ import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/products";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle, MessageCircle, KeyRound, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle, KeyRound, ShieldCheck } from "lucide-react";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { openOrderWhatsAppChat } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   component: OrderDetail,
@@ -128,21 +130,26 @@ function OrderDetail() {
     qc.invalidateQueries({ queryKey: ["orders"] });
   };
 
-  const chatSeller = async (sellerId: string, itemTitle: string) => {
-    try {
-      const { data } = await supabase.from('profiles').select('phone_number').eq('id', sellerId).maybeSingle();
-      const phone = (data as any)?.phone_number;
-      const cleanPhone = phone?.replace(/\D/g, "");
-      if (!cleanPhone) {
-        toast.info("This seller hasn't added WhatsApp yet.");
-        return;
-      }
-      const intl = cleanPhone.startsWith("234") ? cleanPhone : cleanPhone.startsWith("0") ? "234" + cleanPhone.slice(1) : "234" + cleanPhone;
-      const msg = encodeURIComponent(`Hi! I'm reaching out regarding my order for "${itemTitle}" on BTHRIFTS.`);
-      window.open(`https://wa.me/${intl}?text=${msg}`, "_blank", "noopener");
-    } catch (e) {
-      toast.error("Could not load seller details.");
-    }
+  const isPaymentConfirmed = ["paid", "shipped", "out_for_delivery", "delivered"].includes(o.status);
+
+  const handleChatSeller = async (sellerId: string, itemTitle: string) => {
+    await openOrderWhatsAppChat({
+      orderId: o.id,
+      orderTrackingCode: o.tracking_code,
+      itemTitle,
+      targetUserId: sellerId,
+      defaultRole: "seller",
+    });
+  };
+
+  const handleChatBuyer = async (itemTitle?: string) => {
+    await openOrderWhatsAppChat({
+      orderId: o.id,
+      orderTrackingCode: o.tracking_code,
+      itemTitle,
+      defaultRole: "buyer",
+      fallbackPhone: o.phone,
+    });
   };
 
   if (isLoading || !data) {
@@ -189,7 +196,31 @@ function OrderDetail() {
             <h1 className="font-display text-4xl tracking-tight text-foreground/95">Order #{o.tracking_code}</h1>
             <p className="text-sm font-medium text-muted-foreground mt-1">Placed {new Date(o.created_at).toLocaleString()}</p>
           </div>
-          <Link to="/orders" className="text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors">All orders →</Link>
+          <div className="flex items-center gap-3">
+            {isPaymentConfirmed && (
+              <>
+                {isBuyer && (
+                  <button
+                    onClick={() => handleChatSeller(o.order_items[0]?.seller_id, o.order_items[0]?.title)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-sm shadow-md transition-all"
+                  >
+                    <WhatsAppIcon className="w-4 h-4" />
+                    <span>Chat Merchant on WhatsApp</span>
+                  </button>
+                )}
+                {isSeller && (
+                  <button
+                    onClick={() => handleChatBuyer(o.order_items[0]?.title)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-sm shadow-md transition-all"
+                  >
+                    <WhatsAppIcon className="w-4 h-4" />
+                    <span>Chat Buyer on WhatsApp</span>
+                  </button>
+                )}
+              </>
+            )}
+            <Link to="/orders" className="text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors">All orders →</Link>
+          </div>
         </div>
 
         {/* Tracking timeline */}
@@ -321,14 +352,29 @@ function OrderDetail() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-bold text-lg tracking-tight text-foreground/95">{formatNaira(Number(i.unit_price) * i.quantity)}</p>
-                  {isBuyer && (
-                    <button 
-                      onClick={() => chatSeller(i.seller_id, i.title)}
-                      className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 inline-flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5 fill-amber-500/20" />
-                      <span>Chat Seller</span>
-                    </button>
+                  {isPaymentConfirmed && (
+                    <div className="mt-2 flex justify-end">
+                      {isBuyer && (
+                        <button 
+                          onClick={() => handleChatSeller(i.seller_id, i.title)}
+                          className="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                          title="Chat with Merchant on WhatsApp"
+                        >
+                          <WhatsAppIcon className="w-3.5 h-3.5" />
+                          <span>Chat Seller</span>
+                        </button>
+                      )}
+                      {isSeller && (
+                        <button 
+                          onClick={() => handleChatBuyer(i.title)}
+                          className="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                          title="Chat with Buyer on WhatsApp"
+                        >
+                          <WhatsAppIcon className="w-3.5 h-3.5" />
+                          <span>Chat Buyer</span>
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </li>

@@ -10,6 +10,7 @@ import { BackButton } from '@/components/BackButton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Building2, CheckCircle2, Loader2, PencilLine } from 'lucide-react'
+import { sendPlatformEmail } from '@/lib/resend'
 
 export const Route = createFileRoute('/_authenticated/wallet')({
   component: WalletRoute,
@@ -183,14 +184,12 @@ function WalletRoute() {
       qc.invalidateQueries({ queryKey: ["wallet", userId] });
       qc.invalidateQueries({ queryKey: ["transactions", wallet.id] });
 
-      // Trigger transactional email
-      supabase.functions.invoke("send-email", {
-        body: {
-          event_type: "withdrawal_requested",
-          target_user_id: userId,
-          variables: { amount: `₦${amount}` }
-        }
-      });
+      // Trigger transactional email via Resend
+      sendPlatformEmail({
+        event_type: "withdrawal_requested",
+        target_user_id: userId,
+        variables: { amount: `₦${amount}` }
+      }).catch(() => {});
     } catch (err: any) {
       alert(err.message);
     } finally {

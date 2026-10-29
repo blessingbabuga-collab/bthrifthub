@@ -10,6 +10,7 @@ import { formatNaira } from "@/lib/products";
 import { toast } from "sonner";
 import { CreditCard, ShieldCheck, Loader2, CheckCircle2 } from "lucide-react";
 import { usePaystackPayment } from "react-paystack";
+import { sendPlatformEmail } from "@/lib/resend";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   component: CheckoutPage,
@@ -156,14 +157,10 @@ function CheckoutPage() {
       // Clear cart
       await supabase.from("cart_items").delete().in("id", cart!.map((r) => r.id));
 
-      // Trigger payment confirmation emails for buyer and seller(s) in background
+      // Trigger payment confirmation emails for buyer and seller(s) in background via Resend
       if (escrowStatus === "held") {
-        supabase.functions.invoke("send-email", {
-          body: { event_type: "order_paid_buyer", target_order_id: order!.id }
-        }).catch(() => {});
-        supabase.functions.invoke("send-email", {
-          body: { event_type: "order_paid_seller", target_order_id: order!.id }
-        }).catch(() => {});
+        sendPlatformEmail({ event_type: "order_paid_buyer", target_order_id: order!.id }).catch(() => {});
+        sendPlatformEmail({ event_type: "order_paid_seller", target_order_id: order!.id }).catch(() => {});
       }
 
       setConfirmationStep("locking_escrow");

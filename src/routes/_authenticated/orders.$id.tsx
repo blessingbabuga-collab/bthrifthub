@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Circle, Package, Truck, MapPin, Home, XCircle, KeyRound, ShieldCheck } from "lucide-react";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { openOrderWhatsAppChat } from "@/lib/whatsapp";
+import { sendPlatformEmail } from "@/lib/resend";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   component: OrderDetail,
@@ -81,10 +82,8 @@ function OrderDetail() {
       qc.invalidateQueries({ queryKey: ["order", id] });
       qc.invalidateQueries({ queryKey: ["orders"] });
 
-      // Trigger transactional email
-      supabase.functions.invoke("send-email", {
-        body: { event_type: "order_delivered", target_order_id: id }
-      });
+      // Trigger transactional email via Resend
+      sendPlatformEmail({ event_type: "order_delivered", target_order_id: id }).catch(() => {});
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Error verifying OTP";
       toast.error(msg);
@@ -101,10 +100,8 @@ function OrderDetail() {
     qc.invalidateQueries({ queryKey: ["order", id] });
     qc.invalidateQueries({ queryKey: ["orders"] });
 
-    // Trigger transactional email
-    supabase.functions.invoke("send-email", {
-      body: { event_type: "order_shipped", target_order_id: id }
-    });
+    // Trigger transactional email via Resend
+    sendPlatformEmail({ event_type: "order_shipped", target_order_id: id }).catch(() => {});
   };
 
   const confirmDelivery = async () => {
@@ -115,10 +112,8 @@ function OrderDetail() {
     qc.invalidateQueries({ queryKey: ["order", id] });
     qc.invalidateQueries({ queryKey: ["orders"] });
 
-    // Trigger transactional email
-    supabase.functions.invoke("send-email", {
-      body: { event_type: "order_delivered", target_order_id: id }
-    });
+    // Trigger transactional email via Resend
+    sendPlatformEmail({ event_type: "order_delivered", target_order_id: id }).catch(() => {});
   };
 
   const cancel = async () => {

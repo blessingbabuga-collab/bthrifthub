@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
-import nodemailer from "npm:nodemailer@6.9.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -131,78 +130,61 @@ serve(async (req) => {
     let platformFromName = "BTHRIFTS";
     let platformFromEmail = Deno.env.get("FROM_EMAIL") || "notifications@resend.dev";
     let platformReplyTo: string | undefined = "support@thriftyfy.africa";
+    let dbResendApiKey: string | undefined;
 
     try {
       const { data: settings } = await supabase
         .from("platform_settings")
         .select("key, value")
-        .in("key", ["resend_from_name", "resend_from_email", "resend_reply_to"]);
+        .in("key", ["resend_from_name", "resend_from_email", "resend_reply_to", "resend_api_key"]);
 
       if (settings && settings.length > 0) {
         for (const s of settings) {
           if (s.key === "resend_from_name" && s.value?.trim()) platformFromName = s.value.trim();
           if (s.key === "resend_from_email" && s.value?.trim()) platformFromEmail = s.value.trim();
           if (s.key === "resend_reply_to" && s.value?.trim()) platformReplyTo = s.value.trim();
+          if (s.key === "resend_api_key" && s.value?.trim()) dbResendApiKey = s.value.trim();
         }
       }
     } catch (sErr) {
       console.warn("Could not load dynamic platform_settings for Resend:", sErr);
     }
 
-    // 4. Dispatch Email via Resend (Primary Official Channel)
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const gmailUser = Deno.env.get("GMAIL_ADDRESS");
-    const gmailPass = Deno.env.get("GMAIL_APP_PASSWORD");
+    // 4. Dispatch Email exclusively via Resend (Single official communication channel)
+    const resendApiKey = dbResendApiKey || Deno.env.get("RESEND_API_KEY");
 
-    if (resendApiKey) {
-      const payload: Record<string, any> = {
-        from: `${platformFromName} <${platformFromEmail}>`,
-        to: [finalEmail],
-        subject: subject,
-        html: html,
-      };
-
-      if (platformReplyTo) {
-        payload.reply_to = platformReplyTo;
-      }
-
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        throw new Error(`Resend official email error: ${resData.message || JSON.stringify(resData)}`);
-      }
-
-      return new Response(JSON.stringify({ success: true, messageId: resData.id, provider: "resend" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+    if (!resendApiKey) {
+      throw new Error(
+        "Missing Resend API Key. Please provide your Resend API Key in Admin Settings -> Resend Settings (or set RESEND_API_KEY in Supabase Edge Secrets)."
+      );
     }
 
-    if (!gmailUser || !gmailPass) {
-      throw new Error("Missing email credentials. Please configure RESEND_API_KEY or GMAIL_ADDRESS & GMAIL_APP_PASSWORD in Supabase Edge Secrets.");
-    }
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: gmailUser, pass: gmailPass },
-    });
-
-    const info = await transporter.sendMail({
-      from: `"BTHRIFTS" <${gmailUser}>`,
-      to: finalEmail,
+    const payload: Record<string, any> = {
+      from: `${platformFromName} <${platformFromEmail}>`,
+      to: [finalEmail],
       subject: subject,
       html: html,
+    };
+
+    if (platformReplyTo) {
+      payload.reply_to = platformReplyTo;
+    }
+
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
 
-    return new Response(JSON.stringify({ success: true, messageId: info.messageId }), {
+    const resData = await res.json();
+    if (!res.ok) {
+      throw new Error(`Resend email error: ${resData.message || JSON.stringify(resData)}`);
+    }
+
+    return new Response(JSON.stringify({ success: true, messageId: resData.id, provider: "resend" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

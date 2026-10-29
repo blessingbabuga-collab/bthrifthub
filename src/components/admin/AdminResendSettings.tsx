@@ -7,6 +7,7 @@ import { sendPlatformEmail } from "@/lib/resend";
 
 export function AdminResendSettings() {
   const queryClient = useQueryClient();
+  const [apiKey, setApiKey] = useState("");
   const [fromName, setFromName] = useState("BTHRIFTS");
   const [fromEmail, setFromEmail] = useState("notifications@resend.dev");
   const [replyTo, setReplyTo] = useState("support@thriftyfy.africa");
@@ -19,7 +20,7 @@ export function AdminResendSettings() {
       const { data, error } = await supabase
         .from("platform_settings")
         .select("*")
-        .in("key", ["resend_from_name", "resend_from_email", "resend_reply_to"]);
+        .in("key", ["resend_from_name", "resend_from_email", "resend_reply_to", "resend_api_key"]);
       if (error) throw error;
       return data || [];
     },
@@ -28,6 +29,7 @@ export function AdminResendSettings() {
   useEffect(() => {
     if (settings) {
       for (const s of settings) {
+        if (s.key === "resend_api_key" && s.value) setApiKey(s.value);
         if (s.key === "resend_from_name" && s.value) setFromName(s.value);
         if (s.key === "resend_from_email" && s.value) setFromEmail(s.value);
         if (s.key === "resend_reply_to" && s.value) setReplyTo(s.value);
@@ -38,6 +40,7 @@ export function AdminResendSettings() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       const updates = [
+        { key: "resend_api_key", value: apiKey.trim(), description: "API Key from resend.com to send all official platform emails" },
         { key: "resend_from_name", value: fromName.trim(), description: "Default sender name for official platform emails" },
         { key: "resend_from_email", value: fromEmail.trim(), description: "Default sender email address registered/verified on Resend" },
         { key: "resend_reply_to", value: replyTo.trim(), description: "Reply-to email address for customer inquiries" },
@@ -135,6 +138,22 @@ export function AdminResendSettings() {
           }}
           className="space-y-5"
         >
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Resend API Key
+            </label>
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxx"
+              className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Obtained from your <a href="https://resend.com/api-keys" target="_blank" rel="noreferrer" className="text-indigo-500 underline font-semibold">Resend Dashboard</a>. All transactional & test emails will exclusively use this key.
+            </p>
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">

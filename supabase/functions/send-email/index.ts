@@ -100,53 +100,87 @@ serve(async (req) => {
       throw new Error("Missing or unresolvable recipient_email");
     }
 
-    // 1. Fetch template from DB
-    const { data: template, error: tmplError } = await supabase
-      .from("email_templates")
-      .select("subject, body_html")
-      .eq("event_type", event_type)
-      .single();
+    // 1. Fetch template from DB (or allow direct subject & html)
+    const { subject: directSubject, html: directHtml } = await req.clone().json().catch(() => ({}));
+    let subject = directSubject;
+    let html = directHtml;
 
-    if (tmplError || !template) {
-      throw new Error(`Template not found for event: ${event_type}`);
+    if (!subject || !html) {
+      const { data: template, error: tmplError } = await supabase
+        .from("email_templates")
+        .select("subject, body_html")
+        .eq("event_type", event_type)
+        .single();
+
+      if (tmplError || !template) {
+        throw new Error(`Template not found for event: ${event_type}`);
+      }
+
+      subject = template.subject;
+      html = template.body_html;
     }
 
     // 2. Replace variables in template
-    let subject = template.subject;
-    let html = template.body_html;
     for (const [key, value] of Object.entries(finalVariables)) {
       const regex = new RegExp(`{{${key}}}`, "g");
       subject = subject.replace(regex, String(value));
       html = html.replace(regex, String(value));
     }
 
-    // 3. Dispatch Email (Supports RESEND_API_KEY with GMAIL SMTP Fallback)
+    // 3. Fetch official Resend configuration from platform_settings
+    let platformFromName = "BTHRIFTS";
+    let platformFromEmail = Deno.env.get("FROM_EMAIL") || "notifications@resend.dev";
+    let platformReplyTo: string | undefined = "support@thriftyfy.africa";
+
+    try {
+      const { data: settings } = await supabase
+        .from("platform_settings")
+        .select("key, value")
+        .in("key", ["resend_from_name", "resend_from_email", "resend_reply_to"]);
+
+      if (settings && settings.length > 0) {
+        for (const s of settings) {
+          if (s.key === "resend_from_name" && s.value?.trim()) platformFromName = s.value.trim();
+          if (s.key === "resend_from_email" && s.value?.trim()) platformFromEmail = s.value.trim();
+          if (s.key === "resend_reply_to" && s.value?.trim()) platformReplyTo = s.value.trim();
+        }
+      }
+    } catch (sErr) {
+      console.warn("Could not load dynamic platform_settings for Resend:", sErr);
+    }
+
+    // 4. Dispatch Email via Resend (Primary Official Channel)
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const gmailUser = Deno.env.get("GMAIL_ADDRESS");
     const gmailPass = Deno.env.get("GMAIL_APP_PASSWORD");
 
     if (resendApiKey) {
-      const fromEmail = Deno.env.get("FROM_EMAIL") || "orders@thriftyfy.com";
+      const payload: Record<string, any> = {
+        from: `${platformFromName} <${platformFromEmail}>`,
+        to: [finalEmail],
+        subject: subject,
+        html: html,
+      };
+
+      if (platformReplyTo) {
+        payload.reply_to = platformReplyTo;
+      }
+
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${resendApiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          from: `BTHRIFTS <${fromEmail}>`,
-          to: [finalEmail],
-          subject: subject,
-          html: html,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const resData = await res.json();
       if (!res.ok) {
-        throw new Error(`Resend email error: ${resData.message || JSON.stringify(resData)}`);
+        throw new Error(`Resend official email error: ${resData.message || JSON.stringify(resData)}`);
       }
 
-      return new Response(JSON.stringify({ success: true, messageId: resData.id }), {
+      return new Response(JSON.stringify({ success: true, messageId: resData.id, provider: "resend" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });

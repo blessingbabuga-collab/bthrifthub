@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
-import { ShieldCheck, Users, FileText, AlertTriangle, Activity, LogOut, Mail, FileEdit, Tags, Percent } from 'lucide-react'
+import { ShieldCheck, Users, FileText, AlertTriangle, Activity, LogOut, Mail, FileEdit, Tags, Percent, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { AdminStats } from '@/components/admin/AdminStats'
 import { AdminVerifications } from '@/components/admin/AdminVerifications'
@@ -14,12 +14,13 @@ import { AdminEmailTemplates } from '@/components/admin/AdminEmailTemplates'
 import { AdminCMS } from '@/components/admin/AdminCMS'
 import { AdminCategories } from '@/components/admin/AdminCategories'
 import { AdminCommissionSettings } from '@/components/admin/AdminCommissionSettings'
+import { AdminResendSettings } from '@/components/admin/AdminResendSettings'
 
 export const Route = createFileRoute('/admin')({
   component: AdminDashboard,
 })
 
-type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'pages' | 'categories' | 'commission'
+type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'resend' | 'pages' | 'categories' | 'commission'
 
 function AdminDashboard() {
   const { session, loading: isAuthLoading } = useAuth()
@@ -67,7 +68,8 @@ function AdminDashboard() {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'verifications', label: 'Verifications', icon: FileText },
     { id: 'disputes', label: 'Disputes', icon: AlertTriangle },
-    { id: 'emails', label: 'Emails', icon: Mail },
+    { id: 'emails', label: 'Email Templates', icon: Mail },
+    { id: 'resend', label: 'Resend Settings', icon: Send },
     { id: 'pages', label: 'Pages', icon: FileEdit },
     { id: 'categories', label: 'Categories', icon: Tags },
     { id: 'commission', label: 'Commission Fee', icon: Percent },
@@ -147,6 +149,7 @@ function AdminDashboard() {
           {activeTab === 'verifications' && <AdminVerifications />}
           {activeTab === 'disputes' && <AdminDisputes />}
           {activeTab === 'emails' && <AdminEmailTemplates />}
+          {activeTab === 'resend' && <AdminResendSettings />}
           {activeTab === 'pages' && <AdminCMS />}
           {activeTab === 'categories' && <AdminCategories />}
           {activeTab === 'commission' && <AdminCommissionSettings />}

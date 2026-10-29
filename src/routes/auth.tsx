@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { BackButton } from "@/components/BackButton";
+import { sendPlatformEmail } from "@/lib/resend";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
@@ -33,7 +34,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -42,6 +43,17 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+
+        // Dispatch Welcome Email via Resend
+        sendPlatformEmail({
+          event_type: "welcome_user",
+          recipient_email: email,
+          variables: {
+            user_name: fullName || username || "there",
+            email: email,
+          },
+        }).catch(() => {});
+
         toast.success("Account created — check your email to confirm.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });

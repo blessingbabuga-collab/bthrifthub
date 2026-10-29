@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { CheckCircle, XCircle, FileText } from 'lucide-react'
 import { toast } from 'sonner'
+import { sendPlatformEmail } from '@/lib/resend'
 
 export function AdminVerifications() {
   const { data: verifications, refetch } = useQuery({
@@ -19,8 +20,25 @@ export function AdminVerifications() {
 
   const handleVerify = async (id: string, status: 'approved' | 'rejected') => {
     try {
+      const targetVerification = verifications?.find((v: any) => v.id === id);
       const { error } = await supabase.from('verifications').update({ status }).eq('id', id)
       if (error) throw error
+
+      // Trigger Merchant Verification Result Notification via Resend
+      if (targetVerification?.seller?.id) {
+        const { data: sellerAuth } = await supabase.auth.admin.getUserById(targetVerification.seller.id).catch(() => ({ data: null }));
+        const recipientEmail = sellerAuth?.user?.email;
+        if (recipientEmail) {
+          sendPlatformEmail({
+            event_type: status === "approved" ? "merchant_verified" : "merchant_verification_rejected",
+            recipient_email: recipientEmail,
+            variables: {
+              merchant_name: targetVerification.seller.full_name || targetVerification.seller.username || "Merchant",
+            },
+          }).catch(() => {});
+        }
+      }
+
       toast.success(`Verification ${status}`)
       refetch()
     } catch (err: any) {

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { AlertTriangle, CheckCircle, MessagesSquare } from 'lucide-react'
 import { toast } from 'sonner'
+import { sendPlatformEmail } from '@/lib/resend'
 
 export function AdminDisputes() {
   const { data: disputes, refetch } = useQuery({
@@ -19,8 +20,21 @@ export function AdminDisputes() {
 
   const resolveDispute = async (id: string, resolution: 'resolved_buyer' | 'resolved_seller') => {
     try {
+      const targetDispute = disputes?.find((d: any) => d.id === id);
       const { error } = await supabase.from('disputes').update({ status: resolution }).eq('id', id)
       if (error) throw error
+
+      if (targetDispute?.order_id) {
+        sendPlatformEmail({
+          event_type: "dispute_resolved",
+          target_order_id: targetDispute.order_id,
+          variables: {
+            tracking_code: targetDispute.order?.tracking_code || "",
+            resolution: resolution === "resolved_buyer" ? "Funds refunded to Buyer wallet." : "Funds released to Seller wallet.",
+          },
+        }).catch(() => {});
+      }
+
       toast.success(`Dispute ${resolution.replace('_', ' to ')}`)
       refetch()
     } catch (err: any) {

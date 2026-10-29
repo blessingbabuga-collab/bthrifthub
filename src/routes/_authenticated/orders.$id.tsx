@@ -120,6 +120,19 @@ function OrderDetail() {
     if (!confirm("Cancel this order?")) return;
     await supabase.from("orders").update({ status: "cancelled" }).eq("id", id);
     await supabase.from("order_status_events").insert({ order_id: id, status: "cancelled", note: "Cancelled by buyer" });
+
+    // Send cancellation notification via Resend
+    sendPlatformEmail({
+      event_type: "order_cancelled",
+      target_order_id: id,
+      recipient_email: user?.email,
+      variables: {
+        user_name: o.full_name,
+        tracking_code: o.tracking_code,
+        product_name: o.order_items[0]?.title || "your items",
+      },
+    }).catch(() => {});
+
     toast.success("Order cancelled");
     qc.invalidateQueries({ queryKey: ["order", id] });
     qc.invalidateQueries({ queryKey: ["orders"] });

@@ -68,25 +68,33 @@ export function AdminResendSettings() {
 
     setTestingEmail(true);
     try {
+      const emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px;">
+          <h2 style="color: #0f172a; margin-top: 0;">Resend is Connected! 🚀</h2>
+          <p style="color: #334155; line-height: 1.6;">
+            This is a test notification confirming that <strong>${fromName}</strong> (${fromEmail}) is configured and operating as your official communication channel.
+          </p>
+          <div style="background-color: #f8fafc; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 13px; color: #475569;">
+            <strong>Reply-To:</strong> ${replyTo}<br />
+            <strong>Timestamp:</strong> ${new Date().toISOString()}
+          </div>
+          <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">
+            Thriftyfy / Bthrifts Platform Messaging Services
+          </p>
+        </div>
+      `;
+
       const res = await sendPlatformEmail({
         event_type: "test_verification",
         recipient_email: testRecipient.trim(),
         subject: `[Test] Official BTHRIFTS Resend Verification Email`,
-        html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px;">
-            <h2 style="color: #0f172a; margin-top: 0;">Resend is Connected! 🚀</h2>
-            <p style="color: #334155; line-height: 1.6;">
-              This is a test notification confirming that <strong>${fromName}</strong> (${fromEmail}) is configured and operating as your official communication channel.
-            </p>
-            <div style="background-color: #f8fafc; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 13px; color: #475569;">
-              <strong>Reply-To:</strong> ${replyTo}<br />
-              <strong>Timestamp:</strong> ${new Date().toISOString()}
-            </div>
-            <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">
-              Thriftyfy / Bthrifts Platform Messaging Services
-            </p>
-          </div>
-        `,
+        html: emailHtml,
+        variables: {
+          test_subject: `[Test] Official BTHRIFTS Resend Verification Email`,
+          test_body: emailHtml,
+          user_name: "Admin Tester",
+          amount: "0",
+        },
       });
 
       if (res.success) {

@@ -28,7 +28,17 @@ export async function sendPlatformEmail(payload: SendEmailPayload): Promise<Send
 
     if (error) {
       console.error("[Resend Email] Invoke Error:", error);
-      return { success: false, error: error.message };
+      // FunctionsHttpError often contains error context in error.context
+      let detailedMsg = error.message;
+      try {
+        if ((error as any).context && typeof (error as any).context.json === "function") {
+          const body = await (error as any).context.json();
+          if (body?.error) detailedMsg = body.error;
+        }
+      } catch {
+        // ignore parse error
+      }
+      return { success: false, error: detailedMsg };
     }
 
     if (data?.error) {

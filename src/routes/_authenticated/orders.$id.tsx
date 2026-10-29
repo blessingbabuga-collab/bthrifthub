@@ -118,8 +118,12 @@ function OrderDetail() {
 
   const cancel = async () => {
     if (!confirm("Cancel this order?")) return;
-    await supabase.from("orders").update({ status: "cancelled" }).eq("id", id);
-    await supabase.from("order_status_events").insert({ order_id: id, status: "cancelled", note: "Cancelled by buyer" });
+    const { data: res, error } = await (supabase.rpc as any)("cancel_order", { target_order_id: id });
+    const result = res as { success?: boolean; message?: string } | null;
+    if (error || (result && !result.success)) {
+      toast.error(result?.message || error?.message || "Failed to cancel order");
+      return;
+    }
 
     // Send cancellation notification via Resend
     sendPlatformEmail({

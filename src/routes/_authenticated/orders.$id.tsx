@@ -42,17 +42,23 @@ function OrderDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error: queryError } = useQuery({
     queryKey: ["order", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
         .select("*, order_items(id, title, image_url, unit_price, quantity, seller_id), order_status_events(id, status, note, created_at)")
         .eq("id", id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
-      (data as unknown as Order).order_status_events.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      return data as unknown as Order;
+      if (!data) return null;
+      const orderData = data as unknown as Order;
+      if (Array.isArray(orderData.order_status_events)) {
+        orderData.order_status_events.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      } else {
+        orderData.order_status_events = [];
+      }
+      return orderData;
     },
   });
 
@@ -142,13 +148,35 @@ function OrderDetail() {
     qc.invalidateQueries({ queryKey: ["orders"] });
   };
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <div className="min-h-screen pb-20 sm:pb-0">
         <SiteHeader />
         <div className="mx-auto max-w-3xl px-4 py-10">
           <BackButton fallback="/orders" />
           <p className="mt-4 text-muted-foreground">Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (queryError || !data) {
+    return (
+      <div className="min-h-screen pb-20 sm:pb-0">
+        <SiteHeader />
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <BackButton fallback="/orders" />
+          <div className="bg-card border border-border rounded-3xl p-8 text-center mt-6 shadow-sm">
+            <h2 className="text-xl font-bold font-display text-foreground">Order Not Found</h2>
+            <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+              This order could not be loaded. It may not exist or your account may not have permission to view it.
+            </p>
+            <div className="mt-6">
+              <Link to="/orders" className="inline-flex items-center px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-glow">
+                Back to Orders
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );

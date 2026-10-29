@@ -19,7 +19,8 @@ serve(async (req) => {
     );
 
     // Allow providing recipient_email + variables directly, OR target_order_id to auto-resolve
-    const { event_type, recipient_email, variables, target_order_id, target_user_id } = await req.json();
+    const reqBody = await req.json();
+    const { event_type, recipient_email, variables, target_order_id, target_user_id, subject: directSubject, html: directHtml } = reqBody;
 
     if (!event_type) throw new Error("Missing event_type");
 
@@ -100,7 +101,6 @@ serve(async (req) => {
     }
 
     // 1. Fetch template from DB (or allow direct subject & html)
-    const { subject: directSubject, html: directHtml } = await req.clone().json().catch(() => ({}));
     let subject = directSubject;
     let html = directHtml;
 

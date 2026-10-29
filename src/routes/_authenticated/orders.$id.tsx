@@ -138,6 +138,19 @@ function OrderDetail() {
     qc.invalidateQueries({ queryKey: ["orders"] });
   };
 
+  if (isLoading || !data) {
+    return (
+      <div className="min-h-screen pb-20 sm:pb-0">
+        <SiteHeader />
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <BackButton fallback="/orders" />
+          <p className="mt-4 text-muted-foreground">Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  const o = data;
   const isPaymentConfirmed = ["paid", "shipped", "out_for_delivery", "delivered"].includes(o.status);
 
   const handleChatSeller = async (sellerId: string, itemTitle: string) => {
@@ -160,19 +173,6 @@ function OrderDetail() {
     });
   };
 
-  if (isLoading || !data) {
-    return (
-      <div className="min-h-screen pb-20 sm:pb-0">
-        <SiteHeader />
-        <div className="mx-auto max-w-3xl px-4 py-10">
-          <BackButton fallback="/orders" />
-          <p className="mt-4 text-muted-foreground">Loading…</p>
-        </div>
-      </div>
-    );
-  }
-
-  const o = data;
   const currentIdx = STAGES.findIndex((s) => s.key === o.status);
   const cancelled = o.status === "cancelled";
 

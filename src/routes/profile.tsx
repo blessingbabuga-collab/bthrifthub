@@ -4,8 +4,10 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Package, Store, Wallet, Settings, ChevronRight, ShieldCheck } from "lucide-react";
+import { LogOut, Package, Store, Wallet, Settings, ChevronRight, ShieldCheck, FileCheck, Calendar, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { LegalDocumentModal } from "@/components/legal/LegalDocumentModal";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileDashboard,
@@ -14,6 +16,7 @@ export const Route = createFileRoute("/profile")({
 function ProfileDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [selectedConsent, setSelectedConsent] = useState<{ title: string; content: string } | null>(null);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -25,6 +28,20 @@ function ProfileDashboard() {
         .eq("id", user!.id)
         .single();
       return data;
+    },
+  });
+
+  const { data: userConsents = [] } = useQuery({
+    queryKey: ["profile-user-consents", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("user_legal_consents")
+        .select("*")
+        .eq("user_id", user!.id)
+        .order("agreed_at", { ascending: false });
+      if (error) return [];
+      return data || [];
     },
   });
 
@@ -135,6 +152,69 @@ function ProfileDashboard() {
             </Link>
           </div>
         </div>
+
+        {/* Legal Agreements Signed & Consents */}
+        <div className="bg-card border border-border rounded-3xl p-6 shadow-sm mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+              <FileCheck className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Signed Legal Agreements</h3>
+              <p className="text-xs text-muted-foreground">Your verified copies of Terms and Privacy agreements</p>
+            </div>
+          </div>
+
+          {userConsents.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic bg-secondary/30 p-4 rounded-2xl">
+              No signed agreements on file yet. You will be prompted on next policy update.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {userConsents.map((consent: any) => (
+                <div
+                  key={consent.id}
+                  className="flex items-center justify-between p-3.5 rounded-2xl bg-secondary/30 border border-border hover:bg-secondary/50 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-foreground">{consent.agreement_title}</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        v{consent.version}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>Agreed on {new Date(consent.agreed_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedConsent({
+                        title: `${consent.agreement_title} (v${consent.version})`,
+                        content: consent.agreement_content_snapshot,
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background border border-border text-xs font-semibold text-foreground hover:bg-secondary transition-colors shadow-sm"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    View Copy
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Modal for viewing signed copy */}
+        <LegalDocumentModal
+          isOpen={!!selectedConsent}
+          onClose={() => setSelectedConsent(null)}
+          title={selectedConsent?.title || "Legal Agreement"}
+          content={selectedConsent?.content || ""}
+        />
 
         {/* Sign Out */}
         <button onClick={signOut} className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl border border-destructive/20 text-destructive bg-destructive/5 hover:bg-destructive/10 font-semibold transition-colors">

@@ -1,4 +1,5 @@
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { ReconsentModal } from "@/components/legal/ReconsentModal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -148,6 +149,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <OnboardingTour />
+      <ReconsentModal />
       <Toaster position="top-center" theme="light" richColors />
     </QueryClientProvider>
   );

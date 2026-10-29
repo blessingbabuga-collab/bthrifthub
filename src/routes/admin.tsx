@@ -15,12 +15,13 @@ import { AdminCMS } from '@/components/admin/AdminCMS'
 import { AdminCategories } from '@/components/admin/AdminCategories'
 import { AdminCommissionSettings } from '@/components/admin/AdminCommissionSettings'
 import { AdminResendSettings } from '@/components/admin/AdminResendSettings'
+import { AdminLegalAgreements } from '@/components/admin/AdminLegalAgreements'
 
 export const Route = createFileRoute('/admin')({
   component: AdminDashboard,
 })
 
-type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'resend' | 'pages' | 'categories' | 'commission'
+type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'resend' | 'legal' | 'pages' | 'categories' | 'commission'
 
 function AdminDashboard() {
   const { session, loading: isAuthLoading } = useAuth()
@@ -68,6 +69,7 @@ function AdminDashboard() {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'verifications', label: 'Verifications', icon: FileText },
     { id: 'disputes', label: 'Disputes', icon: AlertTriangle },
+    { id: 'legal', label: 'Terms & Privacy', icon: ShieldCheck },
     { id: 'emails', label: 'Email Templates', icon: Mail },
     { id: 'resend', label: 'Resend Settings', icon: Send },
     { id: 'pages', label: 'Pages', icon: FileEdit },
@@ -148,6 +150,7 @@ function AdminDashboard() {
           {activeTab === 'users' && <AdminUsers />}
           {activeTab === 'verifications' && <AdminVerifications />}
           {activeTab === 'disputes' && <AdminDisputes />}
+          {activeTab === 'legal' && <AdminLegalAgreements />}
           {activeTab === 'emails' && <AdminEmailTemplates />}
           {activeTab === 'resend' && <AdminResendSettings />}
           {activeTab === 'pages' && <AdminCMS />}

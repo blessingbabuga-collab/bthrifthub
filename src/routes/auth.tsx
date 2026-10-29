@@ -5,7 +5,8 @@ import { BackButton } from "@/components/BackButton";
 import { sendPlatformEmail } from "@/lib/resend";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck, FileText, Check } from "lucide-react";
+import { LegalDocumentModal } from "@/components/legal/LegalDocumentModal";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -20,7 +21,29 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Legal Modal Viewer state
+  const [activeModal, setActiveModal] = useState<"terms" | "privacy" | null>(null);
+  const [agreements, setAgreements] = useState<Record<string, { title: string; content: string; version: number }>>({});
+
+  useEffect(() => {
+    // Fetch current legal agreements
+    (supabase as any)
+      .from("legal_agreements")
+      .select("id, title, content, version")
+      .then(({ data }: any) => {
+        if (data) {
+          const map: Record<string, any> = {};
+          data.forEach((item: any) => {
+            map[item.id] = item;
+          });
+          setAgreements(map);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
@@ -31,6 +54,13 @@ function AuthPage() {
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "signup") {
+      if (!agreeTerms || !agreePrivacy) {
+        toast.error("Please agree to both the Terms and Conditions and the Privacy Agreement to proceed.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -43,6 +73,37 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+
+        const newUserId = signUpData.user?.id;
+        if (newUserId) {
+          // Record both legal consents
+          const termsObj = agreements["terms_and_conditions"];
+          const privacyObj = agreements["privacy_policy"];
+
+          const consentsToInsert = [];
+          if (termsObj) {
+            consentsToInsert.push({
+              user_id: newUserId,
+              agreement_id: "terms_and_conditions",
+              version: termsObj.version || 1,
+              agreement_title: termsObj.title || "Terms and Conditions",
+              agreement_content_snapshot: termsObj.content || "",
+            });
+          }
+          if (privacyObj) {
+            consentsToInsert.push({
+              user_id: newUserId,
+              agreement_id: "privacy_policy",
+              version: privacyObj.version || 1,
+              agreement_title: privacyObj.title || "Privacy Agreement",
+              agreement_content_snapshot: privacyObj.content || "",
+            });
+          }
+
+          if (consentsToInsert.length > 0) {
+            await (supabase as any).from("user_legal_consents").insert(consentsToInsert).catch(() => {});
+          }
+        }
 
         // Dispatch Welcome Email via Resend
         sendPlatformEmail({
@@ -99,6 +160,59 @@ function AuthPage() {
               <Link to="/forgot-password" className="text-xs text-primary font-medium hover:underline">Forgot password?</Link>
             </div>
           )}
+
+          {mode === "signup" && (
+            <div className="space-y-2 pt-1 text-xs text-muted-foreground">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  required
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="mt-0.5 rounded border-border text-primary focus:ring-primary h-4 w-4 shrink-0 accent-emerald-600"
+                />
+                <span className="leading-tight">
+                  I agree to the{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveModal("terms");
+                    }}
+                    className="font-semibold text-primary underline underline-offset-2 hover:opacity-80"
+                  >
+                    Terms and Conditions
+                  </button>
+                  <span className="text-destructive font-bold ml-0.5">*</span>
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  required
+                  checked={agreePrivacy}
+                  onChange={(e) => setAgreePrivacy(e.target.checked)}
+                  className="mt-0.5 rounded border-border text-primary focus:ring-primary h-4 w-4 shrink-0 accent-emerald-600"
+                />
+                <span className="leading-tight">
+                  I agree to the{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveModal("privacy");
+                    }}
+                    className="font-semibold text-primary underline underline-offset-2 hover:opacity-80"
+                  >
+                    Privacy Agreement
+                  </button>
+                  <span className="text-destructive font-bold ml-0.5">*</span>
+                </span>
+              </label>
+            </div>
+          )}
+
           <button disabled={loading} type="submit" className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold shadow-glow disabled:opacity-60 transition-transform active:scale-95">
             {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
           </button>
@@ -110,6 +224,20 @@ function AuthPage() {
             {mode === "signin" ? "Create an account" : "Sign in"}
           </button>
         </p>
+
+        {/* Legal Modals */}
+        <LegalDocumentModal
+          isOpen={activeModal === "terms"}
+          onClose={() => setActiveModal(null)}
+          title={agreements["terms_and_conditions"]?.title || "Terms and Conditions"}
+          content={agreements["terms_and_conditions"]?.content || "No terms available."}
+        />
+        <LegalDocumentModal
+          isOpen={activeModal === "privacy"}
+          onClose={() => setActiveModal(null)}
+          title={agreements["privacy_policy"]?.title || "Privacy Agreement"}
+          content={agreements["privacy_policy"]?.content || "No privacy policy available."}
+        />
       </div>
     </div>
   );

@@ -70,10 +70,10 @@ export const sendEmailDirectlyViaResend = createServerFn({ method: "POST" })
         if (order) {
           if (event_type === "order_paid_seller") {
             const sellerId = order.order_items[0]?.seller_id;
-            const { data: sellerProf } = await supabase.from("profiles").select("store_name, full_name").eq("id", sellerId).single();
+            const { data: sellerProf } = await (supabase as any).from("profiles").select("business_name, full_name").eq("id", sellerId).single();
             finalVariables = {
               ...finalVariables,
-              seller_name: sellerProf?.store_name || sellerProf?.full_name || "Merchant",
+              seller_name: sellerProf?.business_name || sellerProf?.full_name || "Merchant",
               product_name: order.order_items[0]?.title || "your product",
               tracking_code: order.tracking_code || order.id.slice(0, 8),
             };
@@ -95,7 +95,7 @@ export const sendEmailDirectlyViaResend = createServerFn({ method: "POST" })
       let html = customHtml;
 
       if (!subject || !html) {
-        const { data: template } = await supabase
+        const { data: template } = await (supabase as any)
           .from("email_templates")
           .select("subject, body_html")
           .eq("event_type", event_type)

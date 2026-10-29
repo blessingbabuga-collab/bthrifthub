@@ -422,7 +422,9 @@ function OrderDetail() {
           </ul>
           <div className="mt-6 pt-6 border-t border-border space-y-3 text-base font-medium">
             <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="text-foreground/90">{formatNaira(Number(o.subtotal))}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span className="text-foreground/90">{formatNaira(Number(o.shipping_fee))}</span></div>
+            {Number(o.shipping_fee) > 0 && (
+              <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span className="text-foreground/90">{formatNaira(Number(o.shipping_fee))}</span></div>
+            )}
             <div className="flex justify-between pt-4 mt-2 border-t border-border items-baseline">
               <span className="text-muted-foreground font-bold">Total</span>
               <span className="font-display text-3xl tracking-tight text-amber-500">{formatNaira(Number(o.total))}</span>

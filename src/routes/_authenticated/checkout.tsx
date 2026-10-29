@@ -23,7 +23,7 @@ type CartRow = {
   product: { id: string; title: string; price: number; image_url: string; seller_id: string };
 };
 
-const SHIPPING_FEE = 1500;
+const SHIPPING_FEE = 0;
 
 function CheckoutPage() {
   const { user } = Route.useRouteContext();
@@ -57,7 +57,7 @@ function CheckoutPage() {
   });
 
   const subtotal = (cart ?? []).reduce((s, r) => s + Number(r.product.price) * r.quantity, 0);
-  const total = subtotal + (subtotal > 0 ? SHIPPING_FEE : 0);
+  const total = subtotal;
 
   const config = {
     reference: `BT-${Date.now().toString(36).toUpperCase()}`,
@@ -79,7 +79,7 @@ function CheckoutPage() {
         status: "paid",
         escrow_status: escrowStatus,
         delivery_otp: deliveryOtp,
-        subtotal, shipping_fee: SHIPPING_FEE, total,
+        subtotal, shipping_fee: 0, total,
         payment_method: "card",
         payment_ref: paymentRef,
         full_name: form.full_name,
@@ -311,7 +311,6 @@ function CheckoutPage() {
               </ul>
               <div className="mt-4 pt-4 border-t border-border space-y-1.5 text-sm">
                 <Row label="Subtotal" value={formatNaira(subtotal)} />
-                <Row label="Delivery" value={formatNaira(SHIPPING_FEE)} />
                 <div className="pt-2 border-t border-border flex justify-between items-baseline">
                   <span className="text-sm text-muted-foreground">Total</span>
                   <span className="font-display text-3xl text-amber">{formatNaira(total)}</span>

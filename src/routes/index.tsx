@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ShieldCheck, ShoppingBag, Store, Truck, Wallet, ArrowRight, Play,
-  Sparkles, Star, Flame, Shirt, Footprints, Briefcase, Sofa, Smartphone, Quote,
+  Sparkles, TreePine, Star, Flame, Shirt, Footprints, Briefcase, Sofa, Smartphone, Quote,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -77,7 +77,7 @@ function Index() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <TreePine className="w-3.5 h-3.5 text-amber-300" />
                 <span>Special Holiday Initiative</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-display font-bold tracking-tight text-white">

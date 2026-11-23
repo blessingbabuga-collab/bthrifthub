@@ -10,6 +10,7 @@ import {
   PlusCircle,
   Search,
   CheckCircle2,
+  TreePine,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -53,6 +54,11 @@ function GivingIndexPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-slate-900 text-white py-14 sm:py-20 px-4">
         {/* Festive background accents */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px]" />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <TreePine className="absolute -left-6 bottom-0 w-48 h-48 sm:w-72 sm:h-72 text-emerald-400/15 -rotate-6" />
+          <TreePine className="absolute -right-8 -bottom-4 w-56 h-56 sm:w-80 sm:h-80 text-amber-400/10 rotate-6" />
+          <TreePine className="hidden md:block absolute left-1/4 top-4 w-24 h-24 text-emerald-300/10" />
+        </div>
         <div className="relative max-w-4xl mx-auto text-center space-y-5">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-600/50 text-emerald-200 text-xs sm:text-sm font-medium tracking-wide">
             <Sparkles className="w-4 h-4 text-amber-400" />

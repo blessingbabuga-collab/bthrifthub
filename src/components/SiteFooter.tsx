@@ -18,6 +18,14 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
+          <h4 className="font-display text-amber tracking-widest text-sm">Community</h4>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li><Link to="/giving" className="hover:text-foreground text-emerald-700 font-semibold transition-colors">Christmas Giving 🎁</Link></li>
+            <li><Link to="/giving/browse" className="hover:text-foreground transition-colors">Find a Gift</Link></li>
+            <li><Link to="/giving/create" className="hover:text-foreground transition-colors">Give a Gift</Link></li>
+          </ul>
+        </div>
+        <div>
           <h4 className="font-display text-amber tracking-widest text-sm">Company</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/page/$slug" params={{ slug: "about" }} className="hover:text-foreground transition-colors">About</Link></li>

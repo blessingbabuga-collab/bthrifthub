@@ -868,6 +868,344 @@ export type Database = {
           },
         ]
       }
+      gift_listings: {
+        Row: {
+          id: string
+          giver_id: string
+          title: string
+          description: string | null
+          category: string
+          condition: string
+          images: string[]
+          brand: string | null
+          size: string | null
+          color: string | null
+          specifications: string | null
+          intended_beneficiary_description: string | null
+          location: string
+          deadline: string | null
+          status: "draft" | "published" | "applications_closed" | "awarded" | "withdrawn" | "completed"
+          selected_application_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          giver_id: string
+          title: string
+          description?: string | null
+          category: string
+          condition: string
+          images?: string[]
+          brand?: string | null
+          size?: string | null
+          color?: string | null
+          specifications?: string | null
+          intended_beneficiary_description?: string | null
+          location: string
+          deadline?: string | null
+          status?: "draft" | "published" | "applications_closed" | "awarded" | "withdrawn" | "completed"
+          selected_application_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          giver_id?: string
+          title?: string
+          description?: string | null
+          category?: string
+          condition?: string
+          images?: string[]
+          brand?: string | null
+          size?: string | null
+          color?: string | null
+          specifications?: string | null
+          intended_beneficiary_description?: string | null
+          location?: string
+          deadline?: string | null
+          status?: "draft" | "published" | "applications_closed" | "awarded" | "withdrawn" | "completed"
+          selected_application_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_listings_giver_id_fkey"
+            columns: ["giver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_gift_selected_application"
+            columns: ["selected_application_id"]
+            isOneToOne: false
+            referencedRelation: "gift_applications"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gift_applications: {
+        Row: {
+          id: string
+          gift_id: string
+          applicant_id: string
+          application_type: "self" | "someone_else"
+          intended_recipient_description: string | null
+          message: string
+          status: "pending" | "shortlisted" | "selected" | "not_selected" | "withdrawn"
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          gift_id: string
+          applicant_id: string
+          application_type: "self" | "someone_else"
+          intended_recipient_description?: string | null
+          message: string
+          status?: "pending" | "shortlisted" | "selected" | "not_selected" | "withdrawn"
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          gift_id?: string
+          applicant_id?: string
+          application_type?: "self" | "someone_else"
+          intended_recipient_description?: string | null
+          message?: string
+          status?: "pending" | "shortlisted" | "selected" | "not_selected" | "withdrawn"
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_applications_gift_id_fkey"
+            columns: ["gift_id"]
+            isOneToOne: false
+            referencedRelation: "gift_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gift_handovers: {
+        Row: {
+          id: string
+          gift_id: string
+          giver_id: string
+          recipient_id: string
+          application_id: string
+          meeting_location: string
+          collection_date: string
+          collection_time: string
+          collection_instructions: string | null
+          recipient_confirmed_attendance: boolean
+          recipient_attendance_confirmed_at: string | null
+          giver_confirmed_handover: boolean
+          giver_handover_confirmed_at: string | null
+          recipient_confirmed_receipt: boolean
+          recipient_receipt_confirmed_at: string | null
+          recipient_feedback: string | null
+          recipient_feedback_rating: number | null
+          recipient_feedback_at: string | null
+          is_completed: boolean
+          completed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          gift_id: string
+          giver_id: string
+          recipient_id: string
+          application_id: string
+          meeting_location: string
+          collection_date: string
+          collection_time: string
+          collection_instructions?: string | null
+          recipient_confirmed_attendance?: boolean
+          recipient_attendance_confirmed_at?: string | null
+          giver_confirmed_handover?: boolean
+          giver_handover_confirmed_at?: string | null
+          recipient_confirmed_receipt?: boolean
+          recipient_receipt_confirmed_at?: string | null
+          recipient_feedback?: string | null
+          recipient_feedback_rating?: number | null
+          recipient_feedback_at?: string | null
+          is_completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          gift_id?: string
+          giver_id?: string
+          recipient_id?: string
+          application_id?: string
+          meeting_location?: string
+          collection_date?: string
+          collection_time?: string
+          collection_instructions?: string | null
+          recipient_confirmed_attendance?: boolean
+          recipient_attendance_confirmed_at?: string | null
+          giver_confirmed_handover?: boolean
+          giver_handover_confirmed_at?: string | null
+          recipient_confirmed_receipt?: boolean
+          recipient_receipt_confirmed_at?: string | null
+          recipient_feedback?: string | null
+          recipient_feedback_rating?: number | null
+          recipient_feedback_at?: string | null
+          is_completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_handovers_gift_id_fkey"
+            columns: ["gift_id"]
+            isOneToOne: true
+            referencedRelation: "gift_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_handovers_giver_id_fkey"
+            columns: ["giver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_handovers_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_handovers_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "gift_applications"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gift_reports: {
+        Row: {
+          id: string
+          reporter_id: string
+          gift_id: string | null
+          application_id: string | null
+          reason: string
+          details: string | null
+          status: "pending" | "reviewed" | "action_taken" | "dismissed"
+          admin_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          reporter_id: string
+          gift_id?: string | null
+          application_id?: string | null
+          reason: string
+          details?: string | null
+          status?: "pending" | "reviewed" | "action_taken" | "dismissed"
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          reporter_id?: string
+          gift_id?: string | null
+          application_id?: string | null
+          reason?: string
+          details?: string | null
+          status?: "pending" | "reviewed" | "action_taken" | "dismissed"
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_reports_gift_id_fkey"
+            columns: ["gift_id"]
+            isOneToOne: false
+            referencedRelation: "gift_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_reports_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "gift_applications"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          entity_id: string | null
+          link_url: string | null
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          message: string
+          type?: string
+          entity_id?: string | null
+          link_url?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          message?: string
+          type?: string
+          entity_id?: string | null
+          link_url?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       public_seller_profiles: {
@@ -890,6 +1228,37 @@ export type Database = {
       }
     }
     Functions: {
+      select_gift_recipient: {
+        Args: {
+          p_gift_id: string
+          p_application_id: string
+        }
+        Returns: Json
+      }
+      shortlist_gift_applicant: {
+        Args: {
+          p_application_id: string
+          p_shortlist: boolean
+        }
+        Returns: Json
+      }
+      arrange_gift_handover: {
+        Args: {
+          p_gift_id: string
+          p_meeting_location: string
+          p_collection_date: string
+          p_collection_time: string
+          p_collection_instructions?: string | null
+        }
+        Returns: Json
+      }
+      confirm_handover_step: {
+        Args: {
+          p_gift_id: string
+          p_step: string
+        }
+        Returns: Json
+      }
       verify_delivery_otp: {
         Args: {
           target_order_id: string

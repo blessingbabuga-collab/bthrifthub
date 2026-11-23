@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as GivingRouteImport } from './routes/giving'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
@@ -26,6 +27,11 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedStoreSetupRouteImport } from './routes/_authenticated/store-setup'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
+import { Route as GivingIndexRouteImport } from './routes/giving.index'
+import { Route as GivingIdRouteImport } from './routes/giving.$id'
+import { Route as GivingBrowseRouteImport } from './routes/giving.browse'
+import { Route as GivingCreateRouteImport } from './routes/giving.create'
+import { Route as GivingMyApplicationsRouteImport } from './routes/giving.my-applications'
 import { Route as PageSlugRouteImport } from './routes/page.$slug'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as WardrobeUsernameRouteImport } from './routes/wardrobe.$username'
@@ -33,6 +39,9 @@ import { Route as AuthenticatedEditIdRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedInboxChatIdRouteImport } from './routes/_authenticated/inbox.$chatId'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
+import { Route as GivingHandoverIdRouteImport } from './routes/giving.handover.$id'
+import { Route as GivingMyGiftsIndexRouteImport } from './routes/giving.my-gifts.index'
+import { Route as GivingMyGiftsIdRouteImport } from './routes/giving.my-gifts.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -61,6 +70,11 @@ const BrowseRoute = BrowseRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GivingRoute = GivingRouteImport.update({
+  id: '/giving',
+  path: '/giving',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -118,6 +132,31 @@ const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const GivingIndexRoute = GivingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GivingRoute,
+} as any)
+const GivingIdRoute = GivingIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => GivingRoute,
+} as any)
+const GivingBrowseRoute = GivingBrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
+  getParentRoute: () => GivingRoute,
+} as any)
+const GivingCreateRoute = GivingCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => GivingRoute,
+} as any)
+const GivingMyApplicationsRoute = GivingMyApplicationsRouteImport.update({
+  id: '/my-applications',
+  path: '/my-applications',
+  getParentRoute: () => GivingRoute,
+} as any)
 const PageSlugRoute = PageSlugRouteImport.update({
   id: '/page/$slug',
   path: '/page/$slug',
@@ -155,6 +194,21 @@ const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const GivingHandoverIdRoute = GivingHandoverIdRouteImport.update({
+  id: '/handover/$id',
+  path: '/handover/$id',
+  getParentRoute: () => GivingRoute,
+} as any)
+const GivingMyGiftsIndexRoute = GivingMyGiftsIndexRouteImport.update({
+  id: '/my-gifts/',
+  path: '/my-gifts/',
+  getParentRoute: () => GivingRoute,
+} as any)
+const GivingMyGiftsIdRoute = GivingMyGiftsIdRouteImport.update({
+  id: '/my-gifts/$id',
+  path: '/my-gifts/$id',
+  getParentRoute: () => GivingRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -162,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/giving': typeof GivingRouteWithChildren
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/cart': typeof AuthenticatedCartRoute
@@ -173,13 +228,21 @@ export interface FileRoutesByFullPath {
   '/store-setup': typeof AuthenticatedStoreSetupRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
+  '/giving/$id': typeof GivingIdRoute
+  '/giving/browse': typeof GivingBrowseRoute
+  '/giving/create': typeof GivingCreateRoute
+  '/giving/my-applications': typeof GivingMyApplicationsRoute
   '/page/$slug': typeof PageSlugRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/giving/': typeof GivingIndexRoute
   '/edit/$id': typeof AuthenticatedEditIdRoute
   '/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/giving/handover/$id': typeof GivingHandoverIdRoute
+  '/giving/my-gifts/$id': typeof GivingMyGiftsIdRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/giving/my-gifts/': typeof GivingMyGiftsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -198,13 +261,21 @@ export interface FileRoutesByTo {
   '/store-setup': typeof AuthenticatedStoreSetupRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
+  '/giving/$id': typeof GivingIdRoute
+  '/giving/browse': typeof GivingBrowseRoute
+  '/giving/create': typeof GivingCreateRoute
+  '/giving/my-applications': typeof GivingMyApplicationsRoute
   '/page/$slug': typeof PageSlugRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/giving': typeof GivingIndexRoute
   '/edit/$id': typeof AuthenticatedEditIdRoute
   '/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/giving/handover/$id': typeof GivingHandoverIdRoute
+  '/giving/my-gifts/$id': typeof GivingMyGiftsIdRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
+  '/giving/my-gifts': typeof GivingMyGiftsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -214,6 +285,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/giving': typeof GivingRouteWithChildren
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
@@ -225,13 +297,21 @@ export interface FileRoutesById {
   '/_authenticated/store-setup': typeof AuthenticatedStoreSetupRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
+  '/giving/$id': typeof GivingIdRoute
+  '/giving/browse': typeof GivingBrowseRoute
+  '/giving/create': typeof GivingCreateRoute
+  '/giving/my-applications': typeof GivingMyApplicationsRoute
   '/page/$slug': typeof PageSlugRoute
   '/product/$id': typeof ProductIdRoute
   '/wardrobe/$username': typeof WardrobeUsernameRoute
+  '/giving/': typeof GivingIndexRoute
   '/_authenticated/edit/$id': typeof AuthenticatedEditIdRoute
   '/_authenticated/inbox/$chatId': typeof AuthenticatedInboxChatIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/giving/handover/$id': typeof GivingHandoverIdRoute
+  '/giving/my-gifts/$id': typeof GivingMyGiftsIdRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/giving/my-gifts/': typeof GivingMyGiftsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +321,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/forgot-password'
+    | '/giving'
     | '/profile'
     | '/reset-password'
     | '/cart'
@@ -252,13 +333,21 @@ export interface FileRouteTypes {
     | '/store-setup'
     | '/wallet'
     | '/wishlist'
+    | '/giving/$id'
+    | '/giving/browse'
+    | '/giving/create'
+    | '/giving/my-applications'
     | '/page/$slug'
     | '/product/$id'
     | '/wardrobe/$username'
+    | '/giving/'
     | '/edit/$id'
     | '/inbox/$chatId'
     | '/orders/$id'
+    | '/giving/handover/$id'
+    | '/giving/my-gifts/$id'
     | '/orders/'
+    | '/giving/my-gifts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -277,13 +366,21 @@ export interface FileRouteTypes {
     | '/store-setup'
     | '/wallet'
     | '/wishlist'
+    | '/giving/$id'
+    | '/giving/browse'
+    | '/giving/create'
+    | '/giving/my-applications'
     | '/page/$slug'
     | '/product/$id'
     | '/wardrobe/$username'
+    | '/giving'
     | '/edit/$id'
     | '/inbox/$chatId'
     | '/orders/$id'
+    | '/giving/handover/$id'
+    | '/giving/my-gifts/$id'
     | '/orders'
+    | '/giving/my-gifts'
   id:
     | '__root__'
     | '/'
@@ -292,6 +389,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/forgot-password'
+    | '/giving'
     | '/profile'
     | '/reset-password'
     | '/_authenticated/cart'
@@ -303,13 +401,21 @@ export interface FileRouteTypes {
     | '/_authenticated/store-setup'
     | '/_authenticated/wallet'
     | '/_authenticated/wishlist'
+    | '/giving/$id'
+    | '/giving/browse'
+    | '/giving/create'
+    | '/giving/my-applications'
     | '/page/$slug'
     | '/product/$id'
     | '/wardrobe/$username'
+    | '/giving/'
     | '/_authenticated/edit/$id'
     | '/_authenticated/inbox/$chatId'
     | '/_authenticated/orders/$id'
+    | '/giving/handover/$id'
+    | '/giving/my-gifts/$id'
     | '/_authenticated/orders/'
+    | '/giving/my-gifts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -319,6 +425,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GivingRoute: typeof GivingRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   PageSlugRoute: typeof PageSlugRoute
@@ -368,6 +475,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/giving': {
+      id: '/giving'
+      path: '/giving'
+      fullPath: '/giving'
+      preLoaderRoute: typeof GivingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -447,6 +561,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWishlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/giving/': {
+      id: '/giving/'
+      path: '/'
+      fullPath: '/giving/'
+      preLoaderRoute: typeof GivingIndexRouteImport
+      parentRoute: typeof GivingRoute
+    }
+    '/giving/$id': {
+      id: '/giving/$id'
+      path: '/$id'
+      fullPath: '/giving/$id'
+      preLoaderRoute: typeof GivingIdRouteImport
+      parentRoute: typeof GivingRoute
+    }
+    '/giving/browse': {
+      id: '/giving/browse'
+      path: '/browse'
+      fullPath: '/giving/browse'
+      preLoaderRoute: typeof GivingBrowseRouteImport
+      parentRoute: typeof GivingRoute
+    }
+    '/giving/create': {
+      id: '/giving/create'
+      path: '/create'
+      fullPath: '/giving/create'
+      preLoaderRoute: typeof GivingCreateRouteImport
+      parentRoute: typeof GivingRoute
+    }
+    '/giving/my-applications': {
+      id: '/giving/my-applications'
+      path: '/my-applications'
+      fullPath: '/giving/my-applications'
+      preLoaderRoute: typeof GivingMyApplicationsRouteImport
+      parentRoute: typeof GivingRoute
+    }
     '/page/$slug': {
       id: '/page/$slug'
       path: '/page/$slug'
@@ -496,6 +645,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/giving/handover/$id': {
+      id: '/giving/handover/$id'
+      path: '/handover/$id'
+      fullPath: '/giving/handover/$id'
+      preLoaderRoute: typeof GivingHandoverIdRouteImport
+      parentRoute: typeof GivingRoute
+    }
+    '/giving/my-gifts/': {
+      id: '/giving/my-gifts/'
+      path: '/my-gifts'
+      fullPath: '/giving/my-gifts/'
+      preLoaderRoute: typeof GivingMyGiftsIndexRouteImport
+      parentRoute: typeof GivingRoute
+    }
+    '/giving/my-gifts/$id': {
+      id: '/giving/my-gifts/$id'
+      path: '/my-gifts/$id'
+      fullPath: '/giving/my-gifts/$id'
+      preLoaderRoute: typeof GivingMyGiftsIdRouteImport
+      parentRoute: typeof GivingRoute
+    }
   }
 }
 
@@ -543,6 +713,31 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface GivingRouteChildren {
+  GivingIdRoute: typeof GivingIdRoute
+  GivingBrowseRoute: typeof GivingBrowseRoute
+  GivingCreateRoute: typeof GivingCreateRoute
+  GivingMyApplicationsRoute: typeof GivingMyApplicationsRoute
+  GivingIndexRoute: typeof GivingIndexRoute
+  GivingHandoverIdRoute: typeof GivingHandoverIdRoute
+  GivingMyGiftsIdRoute: typeof GivingMyGiftsIdRoute
+  GivingMyGiftsIndexRoute: typeof GivingMyGiftsIndexRoute
+}
+
+const GivingRouteChildren: GivingRouteChildren = {
+  GivingIdRoute: GivingIdRoute,
+  GivingBrowseRoute: GivingBrowseRoute,
+  GivingCreateRoute: GivingCreateRoute,
+  GivingMyApplicationsRoute: GivingMyApplicationsRoute,
+  GivingIndexRoute: GivingIndexRoute,
+  GivingHandoverIdRoute: GivingHandoverIdRoute,
+  GivingMyGiftsIdRoute: GivingMyGiftsIdRoute,
+  GivingMyGiftsIndexRoute: GivingMyGiftsIndexRoute,
+}
+
+const GivingRouteWithChildren =
+  GivingRoute._addFileChildren(GivingRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -550,6 +745,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GivingRoute: GivingRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   PageSlugRoute: PageSlugRoute,

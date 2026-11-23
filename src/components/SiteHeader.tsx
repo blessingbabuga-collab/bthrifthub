@@ -60,6 +60,10 @@ export function SiteHeader() {
 
         <nav className="flex items-center gap-1 sm:gap-2">
           <Link to="/browse" className="hidden sm:flex px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Browse</Link>
+          <Link to="/giving" className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Giving</span>
+          </Link>
           
           {isMounted && user && !hasStore && (
             <Link to="/store-setup" className="hidden sm:flex px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Open Store</Link>

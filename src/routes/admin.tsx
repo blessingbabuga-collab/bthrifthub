@@ -16,12 +16,14 @@ import { AdminCategories } from '@/components/admin/AdminCategories'
 import { AdminCommissionSettings } from '@/components/admin/AdminCommissionSettings'
 import { AdminResendSettings } from '@/components/admin/AdminResendSettings'
 import { AdminLegalAgreements } from '@/components/admin/AdminLegalAgreements'
+import { AdminGivingModeration } from '@/components/admin/AdminGivingModeration'
+import { Gift } from 'lucide-react'
 
 export const Route = createFileRoute('/admin')({
   component: AdminDashboard,
 })
 
-type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'emails' | 'resend' | 'legal' | 'pages' | 'categories' | 'commission'
+type Tab = 'overview' | 'users' | 'verifications' | 'disputes' | 'giving' | 'emails' | 'resend' | 'legal' | 'pages' | 'categories' | 'commission'
 
 function AdminDashboard() {
   const { session, loading: isAuthLoading } = useAuth()
@@ -69,6 +71,7 @@ function AdminDashboard() {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'verifications', label: 'Verifications', icon: FileText },
     { id: 'disputes', label: 'Disputes', icon: AlertTriangle },
+    { id: 'giving', label: 'Giving Moderation', icon: Gift },
     { id: 'legal', label: 'Terms & Privacy', icon: ShieldCheck },
     { id: 'emails', label: 'Email Templates', icon: Mail },
     { id: 'resend', label: 'Resend Settings', icon: Send },
@@ -150,6 +153,7 @@ function AdminDashboard() {
           {activeTab === 'users' && <AdminUsers />}
           {activeTab === 'verifications' && <AdminVerifications />}
           {activeTab === 'disputes' && <AdminDisputes />}
+          {activeTab === 'giving' && <AdminGivingModeration />}
           {activeTab === 'legal' && <AdminLegalAgreements />}
           {activeTab === 'emails' && <AdminEmailTemplates />}
           {activeTab === 'resend' && <AdminResendSettings />}

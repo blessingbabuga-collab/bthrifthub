@@ -68,6 +68,34 @@ function Index() {
         </div>
       </section>
 
+      {/* CHRISTMAS GIVING COMMUNITY BANNER */}
+      <section className="mx-auto max-w-6xl px-5 mt-2 mb-4">
+        <Link
+          to="/giving"
+          className="group block relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-amber-900 text-white p-5 sm:p-6 shadow-md border border-emerald-700/50 hover:shadow-lg transition-all"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Special Holiday Initiative</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-display font-bold tracking-tight text-white">
+                Give a little. Make someone's Christmas.
+              </h2>
+              <p className="text-xs sm:text-sm text-emerald-100/90 max-w-xl">
+                Share free gifts from your wardrobe with genuine community members in need. 100% free with dignity and care.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="px-4 py-2 rounded-full bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm group-hover:bg-amber-300 transition-colors shadow-sm">
+                Enter Christmas Giving →
+              </span>
+            </div>
+          </div>
+        </Link>
+      </section>
+
       {/* FEED HEADER */}
       <section className="mx-auto max-w-6xl px-5 mt-6">
         <div className="flex items-center justify-between mb-5">

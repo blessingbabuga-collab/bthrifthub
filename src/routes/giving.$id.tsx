@@ -24,7 +24,7 @@ import { BackButton } from "@/components/BackButton";
 import { GivingNav } from "@/components/GivingNav";
 import { ApplyGiftModal } from "@/components/ApplyGiftModal";
 import { ReportGiftModal } from "@/components/ReportGiftModal";
-import { fetchGiftById } from "@/lib/giving";
+import { fetchGiftById, formatGiverName } from "@/lib/giving";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -326,7 +326,7 @@ function GiftDetailPage() {
                     Offered with love by
                   </span>
                   <p className="text-xs font-semibold text-foreground truncate">
-                    {gift.giver.full_name || `@${gift.giver.username || "Community Member"}`}
+                    {formatGiverName(gift.giver)}
                   </p>
                 </div>
               </div>

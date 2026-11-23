@@ -36,6 +36,30 @@ export const GIFT_CONDITIONS = [
   "Gently Used",
 ] as const;
 
+/**
+ * Helper to display the merchant brand name or community display name
+ * without exposing email addresses.
+ */
+export function formatGiverName(giver?: {
+  business_name?: string | null;
+  full_name?: string | null;
+  username?: string | null;
+} | null): string {
+  if (!giver) return "Generous Merchant";
+  if (giver.business_name?.trim()) return giver.business_name.trim();
+  if (giver.full_name?.trim()) return giver.full_name.trim();
+  if (giver.username?.trim()) {
+    const u = giver.username.trim();
+    // If username is an email, strip @domain or return brand placeholder
+    if (u.includes("@")) {
+      const prefix = u.split("@")[0].trim();
+      return prefix || "Community Merchant";
+    }
+    return u;
+  }
+  return "Community Merchant";
+}
+
 export interface FetchGiftsParams {
   category?: string;
   condition?: string;
@@ -69,6 +93,7 @@ export async function fetchPublishedGifts(params?: FetchGiftsParams) {
       giver:profiles!gift_listings_giver_id_fkey(
         id,
         username,
+        business_name,
         avatar_url
       )
     `)
@@ -110,6 +135,7 @@ export async function fetchGiftById(id: string) {
       giver:profiles!gift_listings_giver_id_fkey(
         id,
         username,
+        business_name,
         avatar_url
       )
     `)
@@ -214,6 +240,7 @@ export async function fetchGiftHandover(giftId: string) {
         id,
         username,
         full_name,
+        business_name,
         avatar_url
       ),
       recipient:profiles!gift_handovers_recipient_id_fkey(

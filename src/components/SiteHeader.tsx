@@ -60,9 +60,6 @@ export function SiteHeader() {
 
         <nav className="flex items-center gap-1 sm:gap-2">
           <Link to="/browse" className="hidden sm:flex px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Browse</Link>
-          <Link to="/giving" className="px-3 py-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors">
-            Giving
-          </Link>
           
           {isMounted && user && !hasStore && (
             <Link to="/store-setup" className="hidden sm:flex px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Open Store</Link>

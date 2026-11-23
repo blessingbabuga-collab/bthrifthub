@@ -17,7 +17,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { GivingNav } from "@/components/GivingNav";
 import { GiftCard } from "@/components/GiftCard";
-import { fetchPublishedGifts, fetchFindGiftEnabled } from "@/lib/giving";
+import { fetchPublishedGifts, fetchFindGiftEnabled, fetchGivingBookingStartDate } from "@/lib/giving";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/giving/")({
@@ -38,6 +38,10 @@ function GivingIndexPage() {
   const { data: findGiftEnabled = false } = useQuery({
     queryKey: ["giving_find_gift_enabled"],
     queryFn: fetchFindGiftEnabled,
+  });
+  const { data: bookingStartDate = "2026-12-06" } = useQuery({
+    queryKey: ["giving_booking_start_date"],
+    queryFn: fetchGivingBookingStartDate,
   });
   const { data: recentGifts = [], isLoading } = useQuery({
     queryKey: ["published_gifts", "recent"],
@@ -94,6 +98,21 @@ function GivingIndexPage() {
               </Link>
             )}
           </div>
+
+          {!findGiftEnabled && bookingStartDate && (
+            <div className="pt-2">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm text-emerald-100 backdrop-blur-md">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>
+                  Public bookings and gift sharing commence on{" "}
+                  <strong className="text-amber-300 underline">
+                    {new Date(bookingStartDate).toLocaleDateString(undefined, { dateStyle: "long" })}
+                  </strong>
+                  . Gifts are being collected now!
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       </section>
 

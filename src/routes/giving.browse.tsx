@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { GivingNav } from "@/components/GivingNav";
 import { GiftCard } from "@/components/GiftCard";
-import { fetchPublishedGifts, fetchFindGiftEnabled, GIFT_CATEGORIES, GIFT_CONDITIONS } from "@/lib/giving";
+import { fetchPublishedGifts, fetchFindGiftEnabled, fetchGivingBookingStartDate, GIFT_CATEGORIES, GIFT_CONDITIONS } from "@/lib/giving";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/giving/browse")({
@@ -30,6 +30,11 @@ function GivingBrowsePage() {
   const { data: findGiftEnabled = false, isLoading: settingLoading } = useQuery({
     queryKey: ["giving_find_gift_enabled"],
     queryFn: fetchFindGiftEnabled,
+  });
+
+  const { data: bookingStartDate = "2026-12-06" } = useQuery({
+    queryKey: ["giving_booking_start_date"],
+    queryFn: fetchGivingBookingStartDate,
   });
 
   const { data: gifts = [], isLoading } = useQuery({
@@ -170,9 +175,20 @@ function GivingBrowsePage() {
         ) : !findGiftEnabled ? (
           <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-12 text-center space-y-3">
             <Sparkles className="w-12 h-12 text-emerald-700 mx-auto" />
-            <h3 className="font-display font-bold text-xl text-slate-900">Find a Gift is Opening Soon! 🎁</h3>
+            <h3 className="font-display font-bold text-xl text-slate-900">
+              Find a Gift & Booking Opens{" "}
+              {bookingStartDate
+                ? new Date(bookingStartDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                : "Soon"}! 🎁
+            </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              We are currently collecting gifts from generous community members. Public browsing and gift applications will open shortly!
+              We are currently collecting gifts from generous merchants and community members. Gift bookings and sharing will officially commence on{" "}
+              <strong className="text-slate-900 underline">
+                {bookingStartDate
+                  ? new Date(bookingStartDate).toLocaleDateString(undefined, { dateStyle: "long" })
+                  : "the designated date"}
+              </strong>
+              .
             </p>
             <Link
               to={user ? "/giving/create" : "/auth"}

@@ -1,14 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileNav } from "@/components/MobileNav";
 import { BackButton } from "@/components/BackButton";
 import { ImageUploader, type UploadedImage } from "@/components/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
-import { GIFT_CATEGORIES, GIFT_CONDITIONS } from "@/lib/giving";
+import { GIFT_CATEGORIES, GIFT_CONDITIONS, fetchGivingBookingStartDate } from "@/lib/giving";
 import { sendPlatformEmail } from "@/lib/resend";
-import { Sparkles, Gift, Loader2, Save, Send } from "lucide-react";
+import { Sparkles, Gift, Loader2, Save, Send, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -25,6 +26,11 @@ export const Route = createFileRoute("/giving/create")({
 function GiveGiftPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+
+  const { data: bookingStartDate = "2026-12-06" } = useQuery({
+    queryKey: ["giving_booking_start_date"],
+    queryFn: fetchGivingBookingStartDate,
+  });
 
   const [form, setForm] = useState({
     title: "",
@@ -139,6 +145,19 @@ function GiveGiftPage() {
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Publish an item you would like to give away freely. All gifts are zero-price and open to genuine applications.
           </p>
+          {bookingStartDate && (
+            <div className="mt-3.5 flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs leading-relaxed">
+              <Calendar className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold">Holiday Fulfillment Schedule Notice:</span>{" "}
+                Public gift bookings and recipient selection will commence on{" "}
+                <strong className="underline">
+                  {new Date(bookingStartDate).toLocaleDateString(undefined, { dateStyle: "full" })}
+                </strong>
+                . We are actively collecting gifts now so that everything is prepared when bookings open!
+              </div>
+            </div>
+          )}
         </div>
 
         <form
@@ -304,16 +323,33 @@ function GiveGiftPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">
-                Application Closing Date (Optional)
+              <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Application Closing Date (Optional)</span>
+                {bookingStartDate && (
+                  <span className="text-[10px] font-medium text-emerald-700">
+                    Sharing starts {new Date(bookingStartDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </span>
+                )}
               </label>
               <input
                 type="date"
                 value={form.deadline}
                 onChange={(e) => setField("deadline", e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
+                min={bookingStartDate || new Date().toISOString().split("T")[0]}
                 className="w-full h-11 px-3.5 rounded-xl bg-secondary/30 border border-border text-xs focus:outline-none focus:border-emerald-600"
               />
+              <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-emerald-600 shrink-0" />
+                <span>
+                  Public bookings and gift sharing commence on{" "}
+                  <strong className="text-foreground">
+                    {bookingStartDate
+                      ? new Date(bookingStartDate).toLocaleDateString(undefined, { dateStyle: "medium" })
+                      : "the designated date"}
+                  </strong>
+                  . Please choose a fulfillment date from this day onward.
+                </span>
+              </p>
             </div>
           </div>
 

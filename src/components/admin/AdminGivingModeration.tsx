@@ -1,9 +1,10 @@
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Gift, CheckCircle, ExternalLink, Eye, EyeOff } from "lucide-react";
+import { Gift, CheckCircle, ExternalLink, Eye, EyeOff, Calendar, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
-import { fetchFindGiftEnabled } from "@/lib/giving";
+import { fetchFindGiftEnabled, fetchGivingBookingStartDate } from "@/lib/giving";
 
 export function AdminGivingModeration() {
   const queryClient = useQueryClient();
@@ -12,6 +13,47 @@ export function AdminGivingModeration() {
     queryKey: ["giving_find_gift_enabled"],
     queryFn: fetchFindGiftEnabled,
   });
+
+  const { data: bookingStartDate = "2026-12-06", isLoading: dateLoading } = useQuery({
+    queryKey: ["giving_booking_start_date"],
+    queryFn: fetchGivingBookingStartDate,
+  });
+
+  const [dateInput, setDateInput] = useState(bookingStartDate || "");
+  const [savingDate, setSavingDate] = useState(false);
+
+  useEffect(() => {
+    if (bookingStartDate) {
+      setDateInput(bookingStartDate);
+    }
+  }, [bookingStartDate]);
+
+  const handleSaveBookingStartDate = async () => {
+    if (!dateInput) {
+      toast.error("Please choose a valid commencement date");
+      return;
+    }
+    setSavingDate(true);
+    try {
+      const { error } = await (supabase as any)
+        .from("platform_settings")
+        .upsert(
+          {
+            key: "giving_booking_start_date",
+            value: dateInput,
+            description: "The official date when the general public can start booking/applying for Christmas gifts",
+          },
+          { onConflict: "key" }
+        );
+      if (error) throw error;
+      toast.success(`Commencement date updated to ${new Date(dateInput).toLocaleDateString(undefined, { dateStyle: "long" })}`);
+      queryClient.invalidateQueries({ queryKey: ["giving_booking_start_date"] });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update commencement date");
+    } finally {
+      setSavingDate(false);
+    }
+  };
 
   const handleToggleFindGift = async () => {
     const nextVal = !findGiftEnabled ? "true" : "false";
@@ -112,6 +154,42 @@ export function AdminGivingModeration() {
         >
           {findGiftEnabled ? "Open to Public (Click to Hide)" : "Hidden (Click to Open to Public)"}
         </button>
+      </div>
+
+      {/* ADMIN CONTROL FOR GIFT EXCHANGE COMMENCEMENT DATE */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1 flex-1">
+          <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-emerald-600" />
+            Gift Exchange & Booking Commencement Date
+          </h3>
+          <p className="text-xs text-slate-500 max-w-xl leading-relaxed">
+            Set the official date when public bookings/applications begin. When givers publish items, their calendar will guide them to set fulfillment and application closing dates starting from this commencement date.
+          </p>
+          {bookingStartDate && (
+            <p className="text-xs font-medium text-emerald-700 pt-1">
+              Currently set to: <span className="font-bold underline">{new Date(bookingStartDate).toLocaleDateString(undefined, { dateStyle: "full" })}</span>
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <input
+            type="date"
+            value={dateInput}
+            onChange={(e) => setDateInput(e.target.value)}
+            className="h-10 px-3.5 rounded-xl border border-slate-300 text-xs text-slate-900 bg-slate-50 focus:outline-none focus:border-emerald-600 focus:bg-white transition-colors"
+          />
+          <button
+            type="button"
+            disabled={savingDate || dateLoading || dateInput === bookingStartDate}
+            onClick={handleSaveBookingStartDate}
+            className="h-10 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{savingDate ? "Saving..." : "Save Date"}</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">

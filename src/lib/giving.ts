@@ -83,6 +83,19 @@ export async function fetchFindGiftEnabled(): Promise<boolean> {
 }
 
 /**
+ * Fetch the official date when gift bookings/exchanges commence (configured by admin)
+ */
+export async function fetchGivingBookingStartDate(): Promise<string | null> {
+  const { data } = await (supabase as any)
+    .from("platform_settings")
+    .select("value")
+    .eq("key", "giving_booking_start_date")
+    .maybeSingle();
+
+  return data?.value || "2026-12-06";
+}
+
+/**
  * Fetch published gifts for browsing with giver profile
  */
 export async function fetchPublishedGifts(params?: FetchGiftsParams) {

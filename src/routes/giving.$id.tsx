@@ -24,7 +24,7 @@ import { BackButton } from "@/components/BackButton";
 import { GivingNav } from "@/components/GivingNav";
 import { ApplyGiftModal } from "@/components/ApplyGiftModal";
 import { ReportGiftModal } from "@/components/ReportGiftModal";
-import { fetchGiftById, formatGiverName } from "@/lib/giving";
+import { fetchGiftById, formatGiverName, fetchFindGiftEnabled, fetchGivingBookingStartDate } from "@/lib/giving";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -46,6 +46,16 @@ function GiftDetailPage() {
   const { data: gift, isLoading, error } = useQuery({
     queryKey: ["gift_detail", id],
     queryFn: () => fetchGiftById(id),
+  });
+
+  const { data: findGiftEnabled = false } = useQuery({
+    queryKey: ["giving_find_gift_enabled"],
+    queryFn: fetchFindGiftEnabled,
+  });
+
+  const { data: bookingStartDate = "2026-12-06" } = useQuery({
+    queryKey: ["giving_booking_start_date"],
+    queryFn: fetchGivingBookingStartDate,
   });
 
   // Check if current user already applied
@@ -375,6 +385,15 @@ function GiftDetailPage() {
               ) : isClosed || isExpired ? (
                 <div className="p-4 rounded-2xl bg-secondary border border-border text-center text-xs text-muted-foreground">
                   Applications are currently closed for this gift.
+                </div>
+              ) : !findGiftEnabled && bookingStartDate && new Date() < new Date(bookingStartDate) ? (
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-1.5">
+                  <span className="text-xs font-bold text-amber-900 block">
+                    Gift Bookings Open on {new Date(bookingStartDate).toLocaleDateString(undefined, { dateStyle: "long" })}
+                  </span>
+                  <p className="text-[11px] text-amber-800">
+                    Gifts are currently being collected from community givers. Public booking and applications will open on this date.
+                  </p>
                 </div>
               ) : (
                 <button
